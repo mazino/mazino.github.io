@@ -1,23 +1,27 @@
 ---
 layout: page
-title: About the site, the author, the life, the universe and everything more.
-permalink: about/
+permalink: /about/index.html
+title: Amey Jadiye
+tags: [Amey, Jadiye]
+chart: true
 ---
 
-<div class="message">
-  This page will be ready soon! Meanwhile, stay with this beautiful latin text below.
-</div>
+{% assign total_words = 0 %}
+{% assign total_readtime = 0 %}
+{% assign featuredcount = 0 %}
+{% assign statuscount = 0 %}
 
-Lorem ipsum dolor sit amet, consectetur adipiscing elit. Vivamus eget neque fringilla, pulvinar odio sit amet, malesuada ligula. Curabitur aliquam tempor nibh vel convallis. Integer erat dolor, convallis nec felis at, gravida volutpat magna. Fusce nec nunc id risus tempus luctus. Integer vehicula ipsum fermentum est lobortis condimentum. Nulla at placerat ipsum, quis mollis dui. Cum sociis natoque penatibus et magnis dis parturient montes, nascetur ridiculus mus. Vestibulum a sagittis velit. Etiam non diam quis massa fermentum tristique. Cras porta, magna a malesuada facilisis, magna diam mattis odio, ac placerat erat erat a orci. Proin id metus nulla. In at nisi eu nisi elementum tincidunt eu at ipsum. Praesent condimentum varius quam, a rutrum sem ultricies eu. Quisque nisl sem, lobortis et laoreet mattis, faucibus at quam. Suspendisse potenti. Nunc eget purus eget metus convallis auctor eu in libero.
+{% for post in site.posts %}
+    {% assign post_words = post.content | strip_html | number_of_words %}
+    {% assign readtime = post_words | append: '.0' | divided_by:200 %}
+    {% assign total_words = total_words | plus: post_words %}
+    {% assign total_readtime = total_readtime | plus: readtime %}
+    {% if post.featured %}
+    {% assign featuredcount = featuredcount | plus: 1 %}
+    {% endif %}
+{% endfor %}
 
-Aliquam vulputate augue magna, sit amet volutpat odio adipiscing non. Nulla congue orci tortor, a facilisis felis faucibus sit amet. Sed aliquam nibh id ornare sagittis. Cras faucibus, est aliquam sollicitudin consectetur, elit urna eleifend nunc, consectetur malesuada odio nulla a justo. Aliquam id elit nisl. Fusce quis mauris massa. Etiam quis adipiscing ligula. Suspendisse nec mi posuere, gravida mi in, volutpat libero. Etiam tempus facilisis erat. Nulla eget porta turpis, id porttitor tellus. Aenean posuere sollicitudin condimentum. Vestibulum gravida dolor nec nisl pellentesque consequat. Nam et commodo arcu.
+Thanks For showing interest to check about me, I'm **Amey Jadiye**. I cook delicious code cousins for fun. I'm a Born engineer,Tech savvy, programmer, computer lover, automobiles fan, like to play any kind of machine!, curious towards python, biology, C, physics, java, psychology, MPP, bigdata, low-latency stuff,parallel programming, concurrency, RPi.
 
-Sed ultrices viverra condimentum. Interdum et malesuada fames ac ante ipsum primis in faucibus. Sed nec sodales mi, vel posuere sem. Nullam ultrices tellus enim, a iaculis urna facilisis ac. Donec euismod egestas nisi, sit amet viverra felis volutpat malesuada. Nunc tincidunt arcu nunc, ac commodo mauris tristique quis. Curabitur et risus fringilla, semper odio at, tristique enim. Suspendisse varius, augue et commodo feugiat, magna tellus vestibulum turpis, et aliquet odio erat eget arcu. Nam tincidunt porttitor tincidunt. Nullam metus sapien, pretium at nisi quis, malesuada cursus tortor. Sed interdum turpis ante, ac feugiat odio ultrices at. Cras ornare quam ipsum, at sagittis libero interdum at. Donec consequat dignissim risus, sed mollis urna rutrum vel. Morbi dapibus feugiat tellus dictum blandit.
+This is my personal blog and currently has {{ site.posts | size }} posts in {{ site.categories | size }} categories which combinedly have {{ total_words }} words, which will take an average reader ({{ site.wpm }} WPM) approximately <span class="time">{{ total_readtime }}</span> minutes to read. {% if featuredcount != 0 %}There are <a href="{{ site.url }}/featured">{{ featuredcount }} featured posts</a>, you should definitely check those out.{% endif %} The most recent post is {% for post in site.posts limit:1 %}{% if post.description %}<a href="{{ site.url }}{{ post.url }}" title="{{ post.description }}">"{{ post.title }}"</a>{% else %}<a href="{{ site.url }}{{ post.url }}" title="{{ post.description }}" title="Read more about {{ post.title }}">"{{ post.title }}"</a>{% endif %}{% endfor %} which was published on {% for post in site.posts limit:1 %}{% assign modifiedtime = post.modified | date: "%Y%m%d" %}{% assign posttime = post.date | date: "%Y%m%d" %}<time datetime="{{ post.date | date_to_xmlschema }}" class="post-time">{{ post.date | date: "%d %b %Y" }}</time>{% if post.modified %}{% if modifiedtime != posttime %} and last modified on <time datetime="{{ post.modified | date: "%Y-%m-%d" }}" itemprop="dateModified">{{ post.modified | date: "%d %b %Y" }}</time>{% endif %}{% endif %}{% endfor %}. The last commit was on {{ site.time | date: "%A, %d %b %Y" }} at {{ site.time | date: "%I:%M %p" }} [UTC](http://en.wikipedia.org/wiki/Coordinated_Universal_Time "Temps Universel Coordonné").
 
-Nulla id erat a neque mattis dignissim sit amet eget nunc. Nulla facilisi. Praesent vitae venenatis nisi. Donec varius a mi vitae tristique. Vivamus vitae sapien ac justo malesuada adipiscing. Praesent neque risus, laoreet quis vehicula sit amet, ullamcorper id arcu. Maecenas eleifend quam in purus auctor molestie. In hac habitasse platea dictumst. Praesent non felis aliquam, vestibulum tortor eget, lobortis eros. Ut accumsan nisl sapien, eget pretium magna porttitor et. Nam hendrerit dui velit, ac pharetra ante tristique ac. Suspendisse vitae arcu justo.
-
-Ut sit amet mollis velit. Vivamus eget diam id diam convallis molestie et sagittis diam. Vestibulum pharetra tristique est vel adipiscing. In a est dignissim, auctor magna at, cursus leo. Maecenas varius augue non lacinia eleifend. Fusce tempor elementum rutrum. Donec dolor tortor, condimentum sed vehicula vitae, vehicula at leo. Sed malesuada pulvinar nibh, nec tristique orci semper sed. Aenean risus nisl, placerat vel euismod quis, posuere rhoncus dolor. In quis ante placerat, euismod risus ut, congue dui. Duis luctus semper nunc vel pulvinar. Donec consequat, lorem nec rutrum venenatis, nisi neque pulvinar libero, id venenatis massa magna quis nisl. Nam sit amet tincidunt nunc. Suspendisse sem eros, blandit quis luctus sit amet, feugiat eu tellus. Suspendisse ac consectetur risus. Etiam in hendrerit magna, id tempus eros.
-
-Morbi euismod suscipit suscipit. Phasellus a arcu ac turpis lacinia dictum. Mauris imperdiet commodo quam et condimentum. Aenean est ligula, hendrerit et varius quis, luctus et lorem. Aliquam vestibulum et magna nec aliquam. Suspendisse eu ultricies lectus. Duis vel lorem ut quam bibendum viverra. Curabitur scelerisque, mauris dignissim dignissim egestas, tortor eros pellentesque nunc, ac elementum justo libero sollicitudin erat. Suspendisse suscipit orci eu nibh elementum, non cursus turpis ullamcorper. Integer vehicula libero et tellus vulputate, eu aliquam diam placerat. Morbi pharetra, urna quis bibendum vulputate, nibh nisl dictum risus, et cursus tortor tortor id libero. Integer accumsan, enim sit amet blandit ultricies, diam elit condimentum justo, quis adipiscing dolor eros non neque. Vivamus commodo sem libero, sit amet tincidunt nisi accumsan vitae. Donec nec sem nunc. Phasellus sed placerat erat. Integer nisi lectus, cursus a est id, gravida aliquam purus.
-
-Good bye, and thank's for all the fish!
