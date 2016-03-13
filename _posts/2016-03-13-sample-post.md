@@ -25,4 +25,4 @@ Respecto a puntos  negativos de Phaser, si bien la documentación es bastante co
 
 Finalmente a modo de concluir, no me arrepiento de haber comenzado a desarrollar con Phaser. La curva de aprendizaje de la herramienta es un poquito lenta en un comienzo, pero una vez se pasa la barrera se vuelve simple programar en esta. Me permitió realizar un prototipo (cuyo link dejaré más abajo) bastante rápido sin sentirme limitado a la herramienta lo cual es bastante agradable.
 
-Link de mi primer prototipo realizado con [Phaser](http://mazino.github.io/Prototipo1/), con un tiempo de trabajo de 3 días aproximadamente.
+[Link](http://gamejolt.com/games/prototype-1/133081) de mi primer prototipo realizado con Phaser publicado en Game Jolt, con un tiempo de trabajo de 3 días aproximadamente.
