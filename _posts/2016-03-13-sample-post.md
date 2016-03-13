@@ -4,7 +4,7 @@ title: Primera Publicación
 ---
 Buenas tardes, este DevBlog consiste en publicaciones acerca del desarrollo de videojuegos para navegadores Web, en HTML5.
  
-El primer desafío consiste en desarrollar 2 prototipos para el día Lunes 03 de marzo del 2016, y para el día Lunes 21 de Marzo del 2016 se espera tener 8 prototipos, los cuales serán  publicados en [Gamejolt](http://gamejolt.com/). 
+El primer desafío consiste en desarrollar 2 prototipos para el día Lunes 14 de marzo del 2016, y para el día Lunes 21 de Marzo del 2016 se espera tener 8 prototipos, los cuales serán  publicados en [Gamejolt](http://gamejolt.com/). 
 
 Como primer Post he de definir algunas cosas, como la elección de la tecnología que se utilizará para el desarrollo. Entre las opciones se encuentra:
 
