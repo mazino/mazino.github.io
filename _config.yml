@@ -15,9 +15,10 @@ theme:
      <p>Bienvenidos a Game DevBlog Improvisado.</p>
 
      <p>Espacio para compartir ideas de video juegos.</p>
+
   header_text_feature_image:
-  #footer_text: >
-  # <a href="http://jekyllrb.com">Jekyll</a> with <a href="https://github.com/mazino/mazino.github.io">Página</a>
+  footer_text: >
+   Contacto: felipe.vasquezm@alumnos.usm.cl
 
   # Icons
   rss: false

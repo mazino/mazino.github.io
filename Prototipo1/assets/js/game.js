@@ -51,8 +51,8 @@ var Game = {
     scoreTextValue = game.add.text(90, 18, score.toString(), textStyle_Value);
     
     // Speed.
-    game.add.text(500, 20, "SPEED", textStyle_Key);
-    speedTextValue = game.add.text(558, 18, speed.toString(), textStyle_Value);
+    //game.add.text(500, 20, "SPEED", textStyle_Key);
+    //speedTextValue = game.add.text(558, 18, speed.toString(), textStyle_Value);
     
     // The player and its settings
     player = game.add.sprite(400, 300, 'personajes');
@@ -68,7 +68,7 @@ var Game = {
     player.smoothed = false;
 
     //NPC
-    npc = game.add.sprite(450, 300, 'personajes',13);
+    npc = game.add.sprite(450, 300, 'personajes',49);
     npc.anchor.setTo(0.5, 0.5);
     game.physics.arcade.enable(npc);
     npc.smoothed = false;
