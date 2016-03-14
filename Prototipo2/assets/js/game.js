@@ -76,11 +76,11 @@ var Game = {
     speedTextValue = game.add.text(658, 18, speed.toString(), textStyle_Value);
 
     // Life Nexo player.
-    game.add.text(30, 500, "Nexus Blue Lives", textStyle_Key);
+    game.add.text(30, 500, "Blue Nexus Lives", textStyle_Key);
     nexoBlueTextValue = game.add.text(150, 498, playerTowerLife.toString(), textStyle_Value);
 
     // Life Nexo player.
-    game.add.text(150, 20, "Nexus Red Lives", textStyle_Key);
+    game.add.text(150, 20, "Red Nexus Lives", textStyle_Key);
     nexoRedTextValue = game.add.text(260, 18, enemyTowerLife.toString(), textStyle_Value);
     
     // The player and its settings
