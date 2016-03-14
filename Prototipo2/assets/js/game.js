@@ -8,7 +8,7 @@ var enemyDelay = 750;
 var bulletDelay = 500;
 var playerTower;
 var playerTowerLife;
-var towerIndex = 0;
+var towerIndex;
 var enemyCounterDeaths;
 var enemyTower;
 var enemyTowerLife;
@@ -58,6 +58,7 @@ var Game = {
     squareSize = 15;                // The length of a side of the squares. Our image is 15x15 pixels.
     score = 0;                      // Game score.
     speed = 0;                      // Game speed.
+    towerIndex = 0;
     playerTowerLife = 5;            // Init life Tower player
     enemyTowerLife = 5;             // Init life Tower enemy  
     lastState = 0;                  // Se inicializa lastState 0 por defecto  
@@ -75,11 +76,11 @@ var Game = {
     speedTextValue = game.add.text(658, 18, speed.toString(), textStyle_Value);
 
     // Life Nexo player.
-    game.add.text(30, 500, "Nexo Blue Lifes", textStyle_Key);
+    game.add.text(30, 500, "Nexo Blue Lives", textStyle_Key);
     nexoBlueTextValue = game.add.text(150, 498, playerTowerLife.toString(), textStyle_Value);
 
     // Life Nexo player.
-    game.add.text(150, 20, "Nexo Red Lifes", textStyle_Key);
+    game.add.text(150, 20, "Nexo Red Lives", textStyle_Key);
     nexoRedTextValue = game.add.text(260, 18, enemyTowerLife.toString(), textStyle_Value);
     
     // The player and its settings
