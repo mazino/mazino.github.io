@@ -131,7 +131,7 @@ var Game = {
       this.changeBackground(index);
     }
 
-    //game.physics.arcade.collide(player, floors, this.floorPlayerCollision, null, this);
+    game.physics.arcade.collide(player, floors, this.floorPlayerCollision, null, this);
     
   },
 
