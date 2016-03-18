@@ -10,6 +10,8 @@ var index;
 var floors;
 var timer;
 var A,S,B,F;
+var obstacles;
+var velocityUp;
 
 var Game = {
   preload : function() {
@@ -26,14 +28,18 @@ var Game = {
     game.load.image('changeWhite', 'assets/images/changeWhite.png');
     game.load.image('changeBlack', 'assets/images/changeBlack.png');
 
+    game.load.image('obstacle', 'assets/images/obstacle.png');
+
   },
 
   create : function() {
     game.physics.startSystem(Phaser.Physics.ARCADE);
+    game.physics.arcade.gravity.y = 450;
 
     // Create our Timer
     timer = game.time.create(false);
-    //timer.loop(7000, this.changeWarning2, this);
+    //timer.loop(3000, this.changeWarning2, this);
+    timer.loop(5000, this.addScore, this);
 
     //Por defecto background inicial Rojo
     background = game.add.tileSprite(0, 0, 800, 600, "backgroundRed");    
@@ -43,14 +49,15 @@ var Game = {
     colorBackground = ["backgroundRed","backgroundBlue","backgroundWhite","backgroundBlack"];
     changeBackground = ["changeRed","changeBlue","changeWhite","changeBlack"];
     backgroundDelay = 10;
-    screenDelay = 8;
+    screenDelay = 9;
     jumpTimer = 0;
     currentTile = 0;
     score = 0;
-    
+    velocityUp = 0;
+
     //Paleta de colores
     map = game.add.tilemap();
-    bmd = game.add.bitmapData(32 * 4, 32 * 1);    
+    bmd = game.add.bitmapData(32 * 4, 32 * 1);
     var color = Phaser.Color.createColor(255,0,0); //Red
     bmd.rect(0*32, 0, 64, 32, color.rgba);
     color = Phaser.Color.createColor(0,0,255); //Blue
@@ -83,8 +90,8 @@ var Game = {
     textStyle_Value = { font: "bold 18px sans-serif", fill: "#46c0f9", align: "center" };
 
     // Score.
-    game.add.text(30, 40, "SCORE", textStyle_Key).fixedToCamera = true;
-    scoreTextValue = game.add.text(90, 38, score.toString(), textStyle_Value);    
+    game.add.text(30, 40, "Distancia", textStyle_Key).fixedToCamera = true;
+    scoreTextValue = game.add.text(100, 38, score.toString(), textStyle_Value);    
     scoreTextValue.fixedToCamera = true;
 
     // Letras con que se activa cada Tile
@@ -94,7 +101,8 @@ var Game = {
     game.add.text(108, 10, "F", textStyle_Key).fixedToCamera = true;
 
     //Crea suelo (kill player)
-    this.createFloor();    
+    this.createFloor();
+    this.obstaclesCreate();
 
     // Crea Player
     this.createPlayer();
@@ -106,22 +114,17 @@ var Game = {
     D = game.input.keyboard.addKey(Phaser.Keyboard.D);
     F = game.input.keyboard.addKey(Phaser.Keyboard.F);
 
-
     game.input.addMoveCallback(this.updateMarker, this);
 
     timer.start();
   },
 
   update : function() {
-    game.world.setBounds(player.xChange, 0, game.width + player.xChange, game.world.height);
+    game.world.setBounds(player.xChange, 0, game.width + player.xChange, game.world.height);    
 
-    game.physics.arcade.collide(player, layer);    
+    game.physics.arcade.collide(player, layer);
 
     this.playerMove();
-    
-    if(player.x % 500 == 0){ //Corregir Score
-      this.addScore();
-    }
 
     if(timer.seconds > screenDelay){
       index = this.changeWarning();
@@ -131,13 +134,55 @@ var Game = {
       this.changeBackground(index);
     }
 
-    game.physics.arcade.collide(player, floors, this.floorPlayerCollision, null, this);
+    obstacles.forEach(function(obstacle) {
+      if(game.physics.arcade.distanceBetween(obstacle, player) > 1000)
+      {
+        obstacle.kill();
+        var x = game.camera.x + game.rnd.integerInRange(800 , 1000);
+        var y = game.rnd.integerInRange(50 , game.world.height - 50);
+        var obstacle = obstacles.getFirstDead();
+        obstacle.reset(x,y);
+        obstacle.scale.setTo(1, game.rnd.realInRange(0.5,1));
+        obstacle.body.immovable = true;
+        obstacle.body.allowGravity = false;      
+        return obstacle;
+      }      
+    });
+    
+    game.physics.arcade.overlap(obstacles, player, this.gameOver, null, this);
+    game.physics.arcade.collide(player, floors, this.gameOver, null, this);    
     
   },
 
   addScore : function(){
-    score += 50;
+    score = Math.floor(player.x / 100);
     scoreTextValue.text = score.toString();
+  },
+
+  destroyObstacle : function(){
+    asdasd
+    obst.kill();
+    obstaclesCreateOne(camera.x - 50, game.rnd.integerInRange(0, this.world.height - 50));
+  },
+
+  obstaclesCreate: function() {
+      obstacles = game.add.group();
+      obstacles.enableBody = true;
+      obstacles.createMultiple(6, 'obstacle');
+
+      var x = game.rnd.integerInRange(this.game.width, this.game.world.width - this.game.width);
+      for (var i = 0; i < 4; i++) {
+        this.obstaclesCreateOne(game.rnd.integerInRange(game.world.width - 200, game.world.width - 50), game.rnd.integerInRange(50 , game.world.height - 50));
+      }
+  },
+
+  obstaclesCreateOne: function(x, y) {
+      var obstacle = obstacles.getFirstDead();
+      obstacle.reset(x,y);
+      obstacle.scale.setTo(1, 0.5);
+      obstacle.body.immovable = true;
+      obstacle.body.allowGravity = false;      
+      return obstacle;
   },
 
   changeWarning : function()
@@ -155,11 +200,12 @@ var Game = {
       background.loadTexture(colorBackground[indice]);
       indice % 2 == 0 ? this.collisionSet(++indice) : this.collisionSet(--indice);
       backgroundDelay = timer.seconds + 10;
+      velocityUp += 20;
     }
   },
 
   collisionSet : function(indice){
-    map.setCollision(indice,true);
+    map.setCollision(indice, true);
     for(var i = 0; i < 4; i++){
       if(i != indice){
         map.setCollision(i,false);
@@ -171,20 +217,19 @@ var Game = {
     floors = game.add.group();
     floors.enableBody = true;
     var floor = floors.create(0, game.world.height - 32, 'floor');
-    floor.scale.x = game.world.width; 
+    floor.scale.x = game.world.width;
     floor.body.immovable = true;
-    floor.body.collideWorldBounds = true;
+    floor.body.allowGravity = false;
   },
 
   createPlayer : function() {
-    player = game.add.sprite(80, game.world.centerY-20, 'dude');
-    player.anchor.set(0.5);
+    player = game.add.sprite(100, game.world.centerY-20, 'dude');
+    //player.anchor.set(0.5);
 
     player.xOrig = player.x;
     player.xChange = 0;
 
-    game.physics.arcade.enable(player);
-    game.physics.arcade.gravity.y = 350;
+    game.physics.arcade.enable(player);    
 
     player.body.collideWorldBounds = true;    
 
@@ -194,7 +239,7 @@ var Game = {
   },
 
   playerMove : function(){
-    player.body.velocity.x = 300;
+    player.body.velocity.x = 250 + velocityUp;
     player.play('right');
 
     player.xChange = Math.max(Math.abs(player.x - player.xOrig), player.xChange);
@@ -283,7 +328,7 @@ var Game = {
 
   },
 
-  floorPlayerCollision : function(){
+  gameOver : function(){
     game.world.setBounds(0, 0, game.width, game.height);
     game.state.start('Game_Over');
   },

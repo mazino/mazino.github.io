@@ -8,7 +8,7 @@ var Menu = {
     //game.add.sprite(0, 0, 'menu');
     this.add.button(0, 0, 'menu', this.startGame, this);
 
-    game.add.text(260,180, 'Prototype Game', 
+    game.add.text(260,180, 'Paint your way!', 
       {font: '40px Arial', fill: '#ffffff' });
 
     game.add.text(260,300, 'Press Click To Start Game', 
