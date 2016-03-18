@@ -90,7 +90,7 @@ var Game = {
     textStyle_Value = { font: "bold 18px sans-serif", fill: "#46c0f9", align: "center" };
 
     // Score.
-    game.add.text(30, 40, "Distancia", textStyle_Key).fixedToCamera = true;
+    game.add.text(30, 40, "Distance", textStyle_Key).fixedToCamera = true;
     scoreTextValue = game.add.text(100, 38, score.toString(), textStyle_Value);    
     scoreTextValue.fixedToCamera = true;
 
@@ -335,8 +335,8 @@ var Game = {
 
   render : function(){
 
-    game.debug.cameraInfo(game.camera, 500, 100);
-    game.debug.spriteInfo(player, 32, 100);
-    game.debug.text('Time until event: ' + timer.seconds , 32, 200);
+    //game.debug.cameraInfo(game.camera, 500, 100);
+    //game.debug.spriteInfo(player, 32, 100);
+    //game.debug.text('Time until event: ' + timer.seconds , 32, 200);
   }
 }
