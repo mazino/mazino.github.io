@@ -9,6 +9,7 @@ var background, colorBackground, backgroundDelay, changeBackground, screenDelay;
 var index;
 var floors;
 var timer;
+var A,S,B,F;
 
 var Game = {
   preload : function() {
@@ -86,6 +87,12 @@ var Game = {
     scoreTextValue = game.add.text(90, 38, score.toString(), textStyle_Value);    
     scoreTextValue.fixedToCamera = true;
 
+    // Letras con que se activa cada Tile
+    game.add.text(12, 10, "A", textStyle_Key).fixedToCamera = true;
+    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;
+    game.add.text(76, 10, "D", textStyle_Key).fixedToCamera = true;
+    game.add.text(108, 10, "F", textStyle_Key).fixedToCamera = true;
+
     //Crea suelo (kill player)
     this.createFloor();    
 
@@ -94,6 +101,11 @@ var Game = {
 
     cursors = game.input.keyboard.createCursorKeys();
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+    A = game.input.keyboard.addKey(Phaser.Keyboard.A);
+    S = game.input.keyboard.addKey(Phaser.Keyboard.S);
+    D = game.input.keyboard.addKey(Phaser.Keyboard.D);
+    F = game.input.keyboard.addKey(Phaser.Keyboard.F);
+
 
     game.input.addMoveCallback(this.updateMarker, this);
 
@@ -119,7 +131,7 @@ var Game = {
       this.changeBackground(index);
     }
 
-    game.physics.arcade.collide(player, floors, this.floorPlayerCollision, null, this);
+    //game.physics.arcade.collide(player, floors, this.floorPlayerCollision, null, this);
     
   },
 
@@ -182,10 +194,30 @@ var Game = {
   },
 
   playerMove : function(){
-    player.body.velocity.x = 250;
+    player.body.velocity.x = 300;
     player.play('right');
 
     player.xChange = Math.max(Math.abs(player.x - player.xOrig), player.xChange);
+    if(A.isDown){
+      currentTileMarker.x = 0;
+      currentTileMarker.y = 0;
+      currentTile = 0;
+    }
+    else if(S.isDown){
+      currentTileMarker.x = 32;
+      currentTileMarker.y = 0;
+      currentTile = 1;
+    }
+    else if(D.isDown){
+      currentTileMarker.x = 64;
+      currentTileMarker.y = 0;
+      currentTile = 2;
+    }
+    else if(F.isDown){
+      currentTileMarker.x = 96;
+      currentTileMarker.y = 0;
+      currentTile = 3;
+    }
 
     if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
