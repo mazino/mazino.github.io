@@ -60,8 +60,8 @@ var Game = {
     stageTextValue = game.add.text(558, 36, etapa.toString(), textStyle_Value);
 
     // Shoot.
-    game.add.text(30, 80, "SHOOTS LEFT", textStyle_Key);
-    shootTextValue = game.add.text(140, 77, shoot.toString(), textStyle_Value);
+    game.add.text(30, 80, "SHOTS LEFT", textStyle_Key);
+    shootTextValue = game.add.text(130, 77, shoot.toString(), textStyle_Value);
 
     game.add.text(30, 540, "HamStar Catch Zone", { font: "bold 18px sans-serif", fill: "#FFE600", align: "center" });
 
@@ -151,7 +151,7 @@ var Game = {
 
     if(obstacles.exists)
     {
-      obstacles.forEach(function(obstacle, i) {
+      obstacles.forEach(function(obstacle) {
 
         if(obstacle.x >= 220 && obstacle.x <= 230){
           obstacle.body.velocity.x = -1 * obstacleMove;
