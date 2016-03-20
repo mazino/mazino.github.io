@@ -4,6 +4,7 @@ var catchFlag = false;
 var launchVelocity = 0;
 
 var items, throwBall, floor, limitLaunch, limitThrow, limit; //Limit es el valor que hace disminuir la barra para agarrar
+var obstacles, obstacleMove;
 var score, scoreTextValue, etapa, stageTexValue, shoot, shootTextValue, textStyle_Key, textStyle_Value;
 
 var Game = {
@@ -16,6 +17,7 @@ var Game = {
     //game.load.image('ball', 'assets/images/pangball.png');
     game.load.spritesheet('ball', 'assets/images/humstar.png', 32, 32);
     game.load.image('item', 'assets/images/apple.png');
+    game.load.image('obstacle', 'assets/images/ufo.png');
     game.load.image('floor', 'assets/images/platform.png');
     game.load.image('limitLaunch', 'assets/images/limitLaunch.png');
     game.load.image('limitThrow', 'assets/images/limitThrow.png');
@@ -36,12 +38,14 @@ var Game = {
     score = 0;
     etapa = 1;
     limit = 0;
-    shoot = 4;
+    shoot = 6;
+    obstacleMove = 40;
     
     this.createItem();
     this.createFloor();
     this.createLimit();
     this.createLimitThrow();
+    this.createObstacle();
 
      // Add Text to top of game.
     textStyle_Key = { font: "bold 14px sans-serif", fill: "#46c0f9", align: "center" };
@@ -59,13 +63,13 @@ var Game = {
     game.add.text(30, 80, "SHOOTS LEFT", textStyle_Key);
     shootTextValue = game.add.text(140, 77, shoot.toString(), textStyle_Value);
 
-    game.add.text(30, 540, "Ball Catch Zone", { font: "bold 18px sans-serif", fill: "#FFE600", align: "center" });
+    game.add.text(30, 540, "HamStar Catch Zone", { font: "bold 18px sans-serif", fill: "#FFE600", align: "center" });
 
-    game.add.text(30, 392, "Ball  Throw Zone", { font: "bold 18px sans-serif", fill: "#FF2B2B", align: "center" });
+    game.add.text(30, 392, "HamStar  Throw Zone", { font: "bold 18px sans-serif", fill: "#FF2B2B", align: "center" });
 
     var graphics = game.add.graphics(0,0);
     graphics.beginFill(0x049e0c);
-    graphics.drawRect(395, 400, 10, 200);
+    graphics.drawRect(395, 400, 10, 200);    
 
     analog = game.add.sprite(400, 400, 'analog');
 
@@ -136,12 +140,41 @@ var Game = {
   update : function () {
     arrow.rotation = game.physics.arcade.angleBetween(arrow, ball);
     if(throwBall){
-      game.physics.arcade.overlap(ball, items, this.itemCollect, null, this);
+      game.physics.arcade.overlap(ball, items, this.itemCollect, null, this);      
+      game.physics.arcade.overlap(ball, obstacles, this.obstacleBallCollision, null, this);
       game.physics.arcade.overlap(ball, floor, this.floorBallCollision, null, this);
     }
 
     if(shoot <= 0){
       this.gameOver();
+    }
+
+    if(obstacles.exists)
+    {
+      obstacles.forEach(function(obstacle, i) {
+
+        if(obstacle.x >= 220 && obstacle.x <= 230){
+          obstacle.body.velocity.x = -1 * obstacleMove;
+        }
+        else if(obstacle.x >= 20 && obstacle.x <= 30){
+          obstacle.body.velocity.x = obstacleMove;
+        }
+
+        if(obstacle.x >= 480 && obstacle.x <= 490){
+          obstacle.body.velocity.x = -1 * obstacleMove;
+        }
+        else if(obstacle.x >= 230 && obstacle.x <= 240){
+          obstacle.body.velocity.x = obstacleMove;
+        }
+
+        if(obstacle.x >= 770 && obstacle.x <= 780){
+          obstacle.body.velocity.x = -1 * obstacleMove;
+        }
+        else if(obstacle.x >= 500 && obstacle.x <= 510){
+          obstacle.body.velocity.x = obstacleMove;
+        }
+        
+      });
     }
 
     if (catchFlag == true)
@@ -166,13 +199,29 @@ var Game = {
     for (var i = 0; i < 6; i++) {
       var item = items.getFirstDead();
       var x = i*140 + 10;
-      var y = game.rnd.integerInRange(50 , 250);
+      var y = game.rnd.integerInRange(50 , 220);
       item.reset(x,y);
       item.scale.setTo(1.2, 1.2);
       item.body.immovable = true;
       item.body.allowGravity = false;
     }
-    
+  },
+
+  createObstacle : function(){
+    obstacles = game.add.group();
+    obstacles.enableBody = true;
+    obstacles.createMultiple(4, 'obstacle');
+  
+    for (var i = 0; i < 3; i++) {
+      var obstacle = obstacles.getFirstDead();
+      var x = i*280 + 40;
+      var y = game.rnd.integerInRange(200 , 250);
+      obstacle.reset(x,y);
+      obstacle.scale.setTo(1.5, 1.5);
+      obstacle.body.immovable = true;
+      obstacle.body.allowGravity = false;
+      obstacle.body.velocity.x = obstacleMove;
+    }
   },
 
   createFloor : function(){
@@ -205,9 +254,20 @@ var Game = {
     if(shoot > 13){
       shoot = 13;
     }
+
+    if(obstacles.countLiving() > 0)
+    {
+      obstacles.forEach(function(obstacle) {
+        obstacle.kill();
+      });
+    }    
+    this.createObstacle();
+    obstacleMove += 20;
+
     throwBall = false;
     limitLaunch.reset(0,400 + limit)
     stageTextValue.text = etapa.toString();
+
     this.createItem();
     ball.reset(400,585);
   },
@@ -219,6 +279,11 @@ var Game = {
     if(items.countLiving() == 0){
       this.finishLevel();
     }
+  },
+
+  obstacleBallCollision : function(obj1, obj2){    
+    obj1.reset(400,585);
+    obj2.kill()
   },
 
   floorBallCollision : function(obj1, obj2){
@@ -234,8 +299,8 @@ var Game = {
 
   render : function() {
 
-    game.debug.text("Drag the ball and release to launch", 32, 32);
-    //game.debug.body(ball);
+    game.debug.text("Drag the HamStar and release to launch", 32, 32);
+    game.debug.body(obstacles);
 
     //game.debug.bodyInfo(ball, 32, 64);
 
