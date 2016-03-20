@@ -3,7 +3,7 @@ var ball;
 var catchFlag = false;
 var launchVelocity = 0;
 
-var items, throwBall, floor, limitLaunch, limit;
+var items, throwBall, floor, limitLaunch, limitThrow, limit; //Limit es el valor que hace disminuir la barra para agarrar
 var score, scoreTextValue, etapa, stageTexValue, shoot, shootTextValue, textStyle_Key, textStyle_Value;
 
 var Game = {
@@ -13,11 +13,14 @@ var Game = {
 
     game.load.image('analog', 'assets/images/fusia.png');
     game.load.image('arrow', 'assets/images/longarrow2.png');
-    game.load.image('ball', 'assets/images/pangball.png');
+    //game.load.image('ball', 'assets/images/pangball.png');
+    game.load.spritesheet('ball', 'assets/images/humstar.png', 32, 32);
     game.load.image('item', 'assets/images/apple.png');
     game.load.image('floor', 'assets/images/platform.png');
     game.load.image('limitLaunch', 'assets/images/limitLaunch.png');
-
+    game.load.image('limitThrow', 'assets/images/limitThrow.png');
+    game.load.image('background', 'assets/images/starfield.jpg');
+ 
   },
 
   create : function() {
@@ -25,17 +28,20 @@ var Game = {
 
     // set global gravity
     game.physics.arcade.gravity.y = 200;
-    game.stage.backgroundColor = '#0072bc';
-    
-    this.createItem();
-    this.createFloor();
-    this.createLimit();
+    //game.stage.backgroundColor = '#0072bc';
+    game.add.tileSprite(0, 0, 800, 600, 'background');
 
+    
     throwBall = false;
     score = 0;
     etapa = 1;
     limit = 0;
     shoot = 4;
+    
+    this.createItem();
+    this.createFloor();
+    this.createLimit();
+    this.createLimitThrow();
 
      // Add Text to top of game.
     textStyle_Key = { font: "bold 14px sans-serif", fill: "#46c0f9", align: "center" };
@@ -52,6 +58,10 @@ var Game = {
     // Shoot.
     game.add.text(30, 80, "SHOOTS LEFT", textStyle_Key);
     shootTextValue = game.add.text(140, 77, shoot.toString(), textStyle_Value);
+
+    game.add.text(30, 540, "Ball Catch Zone", { font: "bold 18px sans-serif", fill: "#FFE600", align: "center" });
+
+    game.add.text(30, 392, "Ball  Throw Zone", { font: "bold 18px sans-serif", fill: "#FF2B2B", align: "center" });
 
     var graphics = game.add.graphics(0,0);
     graphics.beginFill(0x049e0c);
@@ -75,12 +85,20 @@ var Game = {
     arrow.body.moves = false;
     arrow.body.allowGravity = false;
     arrow.alpha = 0;
-    
+
+    //  Create our ship sprite
     ball = game.add.sprite(400, 585, 'ball');
+    ball.scale.set(1.5);
+    ball.smoothed = false;
+    ball.animations.add('fly', [0,1,2,3,4,5], 10, true);
+    ball.play('fly');
+    
     game.physics.enable(ball, Phaser.Physics.ARCADE);
-    ball.anchor.setTo(0.5, 0.5);
-    ball.body.collideWorldBounds = true;
+    
+    ball.body.collideWorldBounds = true;    
     ball.body.bounce.setTo(0.7, 0.7);
+    ball.anchor.setTo(0.5, 0.5);
+    
     
     // Enable input.
     ball.inputEnabled = true;
@@ -167,6 +185,11 @@ var Game = {
     floor.body.allowGravity = false;
   },
 
+  createLimitThrow : function(){
+    limitThrow = game.add.sprite(0, 400, 'limitThrow');
+    limitThrow.alpha = 0.2;
+  },
+
   createLimit : function(){
     limitLaunch = game.add.sprite(0, 400, 'limitLaunch');
     limitLaunch.alpha = 0.2;
@@ -174,7 +197,10 @@ var Game = {
 
   finishLevel : function (){
     etapa +=1;
-    limit += 20;
+    limit += 10;
+    if(limit > 120){
+      limit = 120
+    }
     shoot += 5;
     if(shoot > 13){
       shoot = 13;
@@ -209,6 +235,7 @@ var Game = {
   render : function() {
 
     game.debug.text("Drag the ball and release to launch", 32, 32);
+    //game.debug.body(ball);
 
     //game.debug.bodyInfo(ball, 32, 64);
 
