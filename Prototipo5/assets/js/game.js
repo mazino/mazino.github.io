@@ -305,13 +305,9 @@ var Game = {
   },
 
   render : function() {
-    game.debug.body(player);
+    //game.debug.body(player);
     //game.debug.bodyInfo(player, 32, 64);
     //game.debug.text('Time until event: ' + timer.seconds , 32, 200);
-    pandas.forEach(function(panda) {
-      //game.debug.body(panda)
-    });
-
   }
 }
 
