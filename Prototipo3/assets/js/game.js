@@ -42,7 +42,7 @@ var Game = {
     timer.loop(5000, this.addScore, this);
 
     //Por defecto background inicial Rojo
-    background = game.add.tileSprite(0, 0, 800, 600, "backgroundRed");    
+    background = game.add.tileSprite(0, 0, 800, 600, "backgroundBlue");    
     background.fixedToCamera = true;
 
     //init variables
@@ -76,11 +76,11 @@ var Game = {
 
     //  Populate some tiles for our player to start on with color Blue
     for (var i = 0; i < 20; i++){
-      map.putTile(1, i, 10, layer);
+      map.putTile(0, i, 10, layer);
     }
     
     //Se setea Azul con collider debido al background inicial rojo;
-    map.setCollision(1, true);
+    map.setCollision(0, true);
 
     //  Create our tile selector at the top of the screen
     this.createTileSelector();
@@ -148,21 +148,16 @@ var Game = {
         return obstacle;
       }      
     });
+
     
     game.physics.arcade.overlap(obstacles, player, this.gameOver, null, this);
-    game.physics.arcade.collide(player, floors, this.gameOver, null, this);    
-    
+    game.physics.arcade.collide(player, floors, this.gameOver, null, this);
+  
   },
 
   addScore : function(){
     score = Math.floor(player.x / 100);
     scoreTextValue.text = score.toString();
-  },
-
-  destroyObstacle : function(){
-    asdasd
-    obst.kill();
-    obstaclesCreateOne(camera.x - 50, game.rnd.integerInRange(0, this.world.height - 50));
   },
 
   obstaclesCreate: function() {
@@ -172,7 +167,7 @@ var Game = {
 
       var x = game.rnd.integerInRange(this.game.width, this.game.world.width - this.game.width);
       for (var i = 0; i < 4; i++) {
-        this.obstaclesCreateOne(game.rnd.integerInRange(game.world.width - 200, game.world.width - 50), game.rnd.integerInRange(50 , game.world.height - 50));
+        this.obstaclesCreateOne(game.rnd.integerInRange(game.world.width - 200, game.world.width - 50), game.rnd.integerInRange(50 , game.world.height - 100));
       }
   },
 
