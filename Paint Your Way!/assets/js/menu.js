@@ -19,13 +19,12 @@ var Menu = {
     play.inputEnabled = true;
     play.events.onInputDown.add(this.startGame, this);
 
-    control = game.add.text(260,350, 'Controls',
+    /*control = game.add.text(260,350, 'Controls',
             {font: '25px Arial', fill: '#ffffff' });
     
     control.inputEnabled = true;
     control.events.onInputDown.add(this.menuControl, this);
-
-
+    */
   },
 
   startGame: function () {

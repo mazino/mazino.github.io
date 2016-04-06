@@ -15,20 +15,19 @@ var velocityUp;
 
 var Game = {
   preload : function() {
-
     game.load.spritesheet('dude', 'assets/images/dude.png', 32, 48);
-    game.load.image('floor', 'assets/images/floor.png');
+    game.load.image('floor', 'assets/images/spikess.png');
     game.load.image('backgroundRed', 'assets/images/backgroundRed.png');
     game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
-    game.load.image('backgroundWhite', 'assets/images/backgroundWhite.png');
+    game.load.image('backgroundWhite', 'assets/images/backgroundGreen.png');
     game.load.image('backgroundBlack', 'assets/images/backgroundBlack.png');
 
     game.load.image('changeRed', 'assets/images/changeRed.png');
     game.load.image('changeBlue', 'assets/images/changeBlue.png');
-    game.load.image('changeWhite', 'assets/images/changeWhite.png');
+    game.load.image('changeWhite', 'assets/images/changeGreen.png');
     game.load.image('changeBlack', 'assets/images/changeBlack.png');
 
-    game.load.image('obstacle', 'assets/images/obstacles.png');
+    game.load.image('obstacle', 'assets/images/obstacle.png');
     game.load.image('addBlack', 'assets/images/addBlack.png');
 
   },
@@ -66,7 +65,7 @@ var Game = {
     bmd.rect(0*32, 0, 32, 32, color.rgba);
     color = Phaser.Color.createColor(0,0,255); //Blue
     bmd.rect(1*32, 0, 64, 32, color.rgba);
-    color = Phaser.Color.createColor(255,255,255); //White
+    color = Phaser.Color.createColor(0,180,0); //Green
     bmd.rect(2*32, 0, 64, 32, color.rgba);
     color = Phaser.Color.createColor(51,0,51); //Black
     bmd.rect(3*32, 0, 64, 32, color.rgba); 
@@ -135,7 +134,7 @@ var Game = {
       nBlack = 0; // Sólo para asegurarse que nBlack sea igual a cero
       nBlackTextValue.text = "00" + nBlack.toString();
       isBlack = false;
-      if(background.key == "backgroundRed"){ //Ver casos de warningchange
+      if(background.key == "backgroundRed"){
         currentTileMarker.x = 32;
         currentTileMarker.y = 0;
         currentTile = 1;
@@ -150,6 +149,11 @@ var Game = {
         currentTileMarker.y = 0;
         currentTile = 0;
         isBlack = false;
+      }
+      else if(background.key == "changeRed" || background.key == "changeBlue" || background.key == "changeBlue"){
+        currentTileMarker.x = 64;
+        currentTileMarker.y = 0;
+        currentTile = 0;
       }
     }
 
@@ -189,7 +193,7 @@ var Game = {
       }
     });
 
-    game.physics.arcade.collide(player, itemBlack, this.addItemBlack, null, this);
+    game.physics.arcade.overlap(player, itemBlack, this.addItemBlack, null, this);
     game.physics.arcade.overlap(obstacles, player, this.gameOver, null, this);
     game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
   },
@@ -279,7 +283,9 @@ var Game = {
     floors = game.add.group();
     floors.enableBody = true;
     var floor = floors.create(0, game.world.height - 32, 'floor');
-    floor.scale.x = game.world.width;
+    //floor.scale.x = game.world.width;
+    //floor.scale.setTo(0.25, 0.25);
+    floor.fixedToCamera = true;
     floor.body.immovable = true;
     floor.body.allowGravity = false;
   },
@@ -414,19 +420,19 @@ var Game = {
   },
 
   render : function(){
-
     //game.debug.cameraInfo(game.camera, 500, 100);
     //game.debug.spriteInfo(player, 32, 400);
     //game.debug.text('Time: ' + timer.seconds , 32, 200);
     //game.debug.body(player);
+    //game.debug.body(floors.getFirstAlive());
     //game.debug.body(itemBlack);
     //game.debug.body(obstacles.getFirstAlive());
-    game.debug.text('MouseX: ' + game.input.activePointer.x , 32, 80);
-    game.debug.text('MouseY: ' + game.input.activePointer.y , 180, 80);
-    game.debug.text('x: ' + layer.getTileX(marker.x) , 32, 100);
-    game.debug.text('y: ' + layer.getTileX(marker.y) , 180, 100);
-    game.debug.text('Time: ' + timer.seconds , 32, 200);
-    game.debug.text('nBlack: ' + nBlack , 32, 250);
+    //game.debug.text('MouseX: ' + game.input.activePointer.x , 32, 80);
+    //game.debug.text('MouseY: ' + game.input.activePointer.y , 180, 80);
+    //game.debug.text('x: ' + layer.getTileX(marker.x) , 32, 100);
+    //game.debug.text('y: ' + layer.getTileX(marker.y) , 180, 100);
+    //game.debug.text('Time: ' + timer.seconds , 32, 200);
+    //game.debug.text('nBlack: ' + nBlack , 32, 250);
     //game.debug.text('world height: ' + game.world.height , 32, 150);
   }
 }
