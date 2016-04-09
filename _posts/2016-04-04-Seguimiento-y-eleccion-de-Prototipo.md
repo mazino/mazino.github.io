@@ -44,3 +44,15 @@ El modelo realizado es el siguiente:
 Se puede observar nuevamente con este modelo cómo interactúan los distintos elementos del juego visto desde la perspectiva del jugador. Se debe resaltar la última capa <i>PSYCHO</i>, que pretende resumir las emociones que probablemente sienta el jugador cuando este jugando. En este caso, el personaje debería transmitir la sensación de adrenalina debido a que queremos mantenerlo a salvo el mayor tiempo posible. Los ítems que aparecen debido al aumento en pintura Negra, si se tiene suficiente de esta el jugador debería sentir cierta seguridad y por el contrario si es escaza, el jugador debería sentir ansiedad por obtener el item y que este aparezca. Finalmente, los obstaculos estan hechos para que el jugador se frustre y desee intentar superar su mejor score.
 
 A modo de finalizar esta publicación dejaré algunos Gifs de los cambios hechos en el último avance del juego.
+
+Destrucción de obstaculos:
+
+![Destroy-obstacles](/img/destroy-obstacles.gif)
+
+Limite de pintura negra:
+
+![limite-pintura-negra](/img/limite-pintura.gif)
+
+Un poco de Game Play:
+
+![GamePlay](/img/game-play.gif)
