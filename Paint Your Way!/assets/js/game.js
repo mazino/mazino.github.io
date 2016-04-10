@@ -33,6 +33,8 @@ var Game = {
   },
 
   create : function() {
+    TGS.Analytics.logGameEvent('begin');
+
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 450;
 
@@ -334,6 +336,7 @@ var Game = {
       currentTileMarker.y = 0;
       currentTile = 3;
       isBlack = true;
+      //TGS.Analytics.logLevelEvent('pressF', nBlack);
     }
 
     if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
@@ -415,6 +418,7 @@ var Game = {
   },
 
   gameOver : function(){
+    TGS.Analytics.logGameEvent('end');
     game.world.setBounds(0, 0, game.width, game.height);
     game.state.start('Game_Over');
   },
