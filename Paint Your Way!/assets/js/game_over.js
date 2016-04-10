@@ -33,7 +33,7 @@ var Game_Over = {
       { font: "bold 20px sans-serif", fill: "#fff", align: "center" }).fixedToCamera = true;
 
     TGS.Analytics.logLevelEvent('fail', score);
-    TGS.Analytics.logCustomEvent('Game_Over', score);
+    TGS.Analytics.logCustomEvent('game over', score);
   },
 
   startGame: function () {
