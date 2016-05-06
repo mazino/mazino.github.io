@@ -15,7 +15,7 @@ var velocityUp;
 
 var Game = {
   preload : function() {
-    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
+    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon2.png', 31, 27);
     game.load.image('floor', 'assets/images/spikess.png');
     game.load.image('backgroundRed', 'assets/images/backgroundRed.png');
     game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
@@ -185,7 +185,7 @@ var Game = {
     var x = game.rnd.integerInRange(this.game.width, this.game.world.width - this.game.width);
     for (var i = 0; i < 4; i++) {
       //this.obstaclesCreateOne(game.rnd.integerInRange(game.world.width - 200, game.world.width - 50), game.rnd.integerInRange(50 , game.world.height - 100));
-      this.obstaclesCreateOne(game.rnd.integerInRange(16, 24), game.rnd.integerInRange(4 , 15));
+      this.obstaclesCreateOne(game.rnd.integerInRange(32, 40), game.rnd.integerInRange(4 , 15));
     }
   },
 
@@ -253,8 +253,8 @@ var Game = {
 
     player.animations.add('camaleonWalkGreen', [0,1,2,3], 20, true);
     player.animations.add('camaleonJumpGreen', [4,5,6,7,8,9,10,11], 12, true);
-    player.animations.add('camaleonWalkBlue', [13,14,15,16], 20, true);
-    player.animations.add('camaleonJumpBlue', [17,18,19,20,21,22,23,24], 12, true);
+    player.animations.add('camaleonWalkBlue', [12,13,14,15], 20, true);
+    player.animations.add('camaleonJumpBlue', [16,17,18,19,20,21,22,23], 12, true);
 
     //Inicializamos la animacion con que comenzamos el juego.
     //player.play('camaleonWalkBlue');
@@ -279,6 +279,15 @@ var Game = {
       else{
         player.play('camaleonJumpGreen');
       }
+    }
+
+    //Si player está en el suelo su caja de colision es player.body.setSize(32,16,0,11);
+    if(player.body.onFloor()){
+      player.body.setSize(32,16,0,11);
+    }
+    //Si player está en el aire su colsion es player.body.setSize(32,32,0,0)
+    else{
+      player.body.setSize(22,16,6,9);
     }
 
     player.xChange = Math.max(Math.abs(player.x - player.xOrig), player.xChange);
