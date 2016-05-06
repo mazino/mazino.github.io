@@ -287,7 +287,7 @@ var Game = {
     }
     //Si player está en el aire su colsion es player.body.setSize(32,32,0,0)
     else{
-      player.body.setSize(22,16,6,9);
+      player.body.setSize(21,16,6,9);
     }
 
     player.xChange = Math.max(Math.abs(player.x - player.xOrig), player.xChange);
