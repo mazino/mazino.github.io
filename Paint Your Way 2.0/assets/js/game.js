@@ -248,41 +248,56 @@ var Game = {
     game.physics.arcade.enable(player);
 
     player.body.collideWorldBounds = true;
-    //Ajustar la caja de colisiones con el sprite definitivo 
-    //player.body.setSize(32,32,0,16);
+    
+    player.body.setSize(32,16,0,11);
 
     player.animations.add('camaleonWalkGreen', [0,1,2,3], 20, true);
-    player.animations.add('camaleonWalkBlue', [4,5,6,7], 20, true);
+    player.animations.add('camaleonJumpGreen', [4,5,6,7,8,9,10,11], 12, true);
+    player.animations.add('camaleonWalkBlue', [13,14,15,16], 20, true);
+    player.animations.add('camaleonJumpBlue', [17,18,19,20,21,22,23,24], 12, true);
 
     //Inicializamos la animacion con que comenzamos el juego.
-    player.play('camaleonWalkBlue');
+    //player.play('camaleonWalkBlue');
   },
 
   playerMove : function(){
-    player.body.velocity.x = 150 + velocityUp;    
+    player.body.velocity.x = 150 + velocityUp;
+
+    if(currentTile == 0){ //si estamos en color Azul
+      if(player.body.onFloor()){
+        player.play('camaleonWalkBlue');
+      }
+      else{
+        player.play('camaleonJumpBlue'); 
+      }
+    }
+
+    else if(currentTile == 1){ //Si estamos en color verde
+      if(player.body.onFloor()){
+        player.play('camaleonWalkGreen');
+      }
+      else{
+        player.play('camaleonJumpGreen');
+      }
+    }
 
     player.xChange = Math.max(Math.abs(player.x - player.xOrig), player.xChange);
     if(A.isDown){
       currentTileMarker.x = 0;
       currentTileMarker.y = 0;
-      currentTile = 0;
-      player.play('camaleonWalkBlue');
+      currentTile = 0;      
     }
     else if(S.isDown){
       currentTileMarker.x = 32;
       currentTileMarker.y = 0;
       currentTile = 1;
-      player.play('camaleonWalkGreen');
     }
 
     if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
       player.body.velocity.y = -250;
       jumpTimer = game.time.now + 750;
-      //Ajustar el body del PJ al salto (es una idea hacerlo acá)
     }
-
-    //Crear funcion if player.body.onFloor() -> ajustar el body al del tamaño de correr
   },
 
   pickTile: function(sprite, pointer) {
