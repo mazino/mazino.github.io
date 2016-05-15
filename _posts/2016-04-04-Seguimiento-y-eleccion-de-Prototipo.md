@@ -12,7 +12,7 @@ El objetivo del juego sigue siendo maximizar el Score, esto se realiza alcanzand
 
 La relación entre background y pintura/plataforma se explica en el siguiente esquema.
 
-![Relacion background-pintura](/img/background-pintura.png)
+![Relacion background-pintura](/img/Background-Pintura.png)
 
 Básicamente, si el background es Rojo se debe pintar con el color Azul, si el background es Azul se debe pintar con el color Verde y si el background es Verde se debe pintar con el color Rojo. La excepción como ya se mencion es el color negro, el cual puede ser usado sin considerar el background.
 
