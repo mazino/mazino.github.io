@@ -12,6 +12,12 @@ var timer;
 var A,S,D,F;
 var obstacles;
 var velocityUp;*/
+var laserRojoHGroup;
+var laserRojoVGroup;
+var laserRojoH;
+var laserRojoV;
+var laserDelay;
+var nLaserH;
 
 var White_World = {
   preload : function() {
@@ -19,7 +25,7 @@ var White_World = {
     game.load.image('floor', 'assets/images/spikess.png');    
     game.load.image('backgroundWhite', 'assets/images/backgroundWhite.png');
 
-    game.load.image('obstacle', 'assets/images/obstacle.png');
+    game.load.image('laserRojoHorizontal', 'assets/images/laser_rojo_horizontal.png');
 
   },
 
@@ -36,6 +42,8 @@ var White_World = {
     jumpTimer = 0;
     currentTile = 0;
     score = 0;
+    laserDelay = 4;
+    nLaserH = 6;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -77,7 +85,7 @@ var White_World = {
     game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;    
     
     this.createFloor();
-    this.obstaclesCreate();    
+    this.laserRojoCreate();    
 
     // Crea Player
     this.createPlayer();
@@ -101,25 +109,14 @@ var White_World = {
 
     this.playerMove();
 
-    obstacles.forEach(function(obstacle) {
-      if(game.physics.arcade.distanceBetween(obstacle, player) > 1000)
-      {
-        obstacle.kill();
-        var x =  Math.floor((game.camera.x + game.rnd.integerInRange(800 , 1000))/32);
-        x = x * 32;
-        //var y = game.rnd.integerInRange(50 , game.world.height - 50);
-        //var x = game.camera.x + game.rnd.integerInRange(25 , 31);
-        var y = game.rnd.integerInRange(4 , 15);
-        var obstacle = obstacles.getFirstDead();
-        //obstacle.reset(x,y);
-        obstacle.reset(x, y * 32);
-        obstacle.scale.setTo(1, 0.75);
-        obstacle.body.setSize(obstacle.width + 2, obstacle.height + 32, -1);
-        obstacle.body.immovable = true;
-        obstacle.body.allowGravity = false;
-        return obstacle;
+    if(timer.seconds > laserDelay){
+      if(laserRojoHGroup.exists){
+        laserRojoHGroup.forEach(function(laserRojoH) {
+          laserRojoH.kill();
+        });
       }
-    });
+      this.laserRojoHorizontal();
+    }
 
     game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
     game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
@@ -134,27 +131,27 @@ var White_World = {
     scoreTextValue.text = score.toString();
   },
 
-  obstaclesCreate : function() {
-    obstacles = game.add.group();
-    obstacles.enableBody = true;
-    obstacles.createMultiple(6, 'obstacle');
-
-    var x = game.rnd.integerInRange(this.game.width, this.game.world.width - this.game.width);
-    for (var i = 0; i < 4; i++) {
-      //this.obstaclesCreateOne(game.rnd.integerInRange(game.world.width - 200, game.world.width - 50), game.rnd.integerInRange(50 , game.world.height - 100));
-      this.obstaclesCreateOne(game.rnd.integerInRange(32, 40), game.rnd.integerInRange(4 , 15));
-    }
+  laserRojoCreate : function() {
+    laserRojoHGroup = game.add.group();
+    laserRojoHGroup.enableBody = true;
+    laserRojoHGroup.createMultiple(10, 'laserRojoHorizontal', 0, false);
   },
 
-  obstaclesCreateOne: function(x, y) {
-    var obstacle = obstacles.getFirstDead();
-    //obstacle.reset(x,y);
-    obstacle.reset(x * 32, y * 32);
-    obstacle.body.setSize(obstacle.width + 2, obstacle.height, -1);
-    obstacle.scale.setTo(1, 0.75);
-    obstacle.body.immovable = true;
-    obstacle.body.allowGravity = false;
-    return obstacle;
+  laserRojoHorizontal: function() {
+    var posX = 0;    
+    var posY = Math.floor(player.y / 32);
+
+    for(var i = 0; i < nLaserH; i++){
+      var laserRojoH = laserRojoHGroup.getFirstDead(true, posX, posY*32 + i*64);
+
+      laserRojoH.body.immovable = true;
+      laserRojoH.body.allowGravity = false;
+      laserRojoH.alpha = 0.2;  
+    }
+
+    laserDelay = timer.seconds + 4;
+    //laserRojoH.animations.add('laserRojo', [0,1], 10, false);
+    //laserRojoH.play('laserRojo');
   },
 
   createFloor : function(){

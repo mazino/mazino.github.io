@@ -30,7 +30,7 @@ var Game = {
     game.load.image('changeGreen', 'assets/images/changeGreen.png');    
 
     game.load.image('obstacle', 'assets/images/obstacle.png');
-    game.load.image('laserRojo', 'assets/images/laser_rojo.png');
+    game.load.spritesheet('laserRojo', 'assets/images/laser_vertical.png',32,800);
     game.load.image('whiteWorld', 'assets/images/whiteWorld.png');
 
   },
@@ -136,6 +136,7 @@ var Game = {
 
     this.playerMove();
 
+    //Si el cambio es bloqueado por la derecha, activar laser vertical
     if(player.body.blocked.right){
       iterador += 1;
     }
@@ -176,10 +177,11 @@ var Game = {
     });    
 
     laserRojoGroup.forEach(function(laserRojo) {
-      if(laserRojo.alpha < 1){
+      /*if(laserRojo.alpha < 1){
         laserRojo.alpha += 0.01
       }
-      if(game.physics.arcade.distanceBetween(laserRojo, player) > 1000){
+      */
+      if(laserRojo.frame == 14){
         laserRojo.kill();
       }
     });
@@ -203,7 +205,7 @@ var Game = {
   },
 
   playerLaserCollision : function(pj, laser){
-    if(laser.alpha >= 1){
+    if(laser.frame == 10){
       this.gameOver();
     }
   },
@@ -214,8 +216,8 @@ var Game = {
   },
 
   itemWhiteWorldCreate : function(){
-    var posX = game.rnd.integerInRange(600, 700);
-    var posY = game.rnd.integerInRange(8 , 10);
+    var posX = game.rnd.integerInRange(400, 500);
+    var posY = game.rnd.integerInRange(8 , 9);
     whiteWorld = game.add.sprite(posX, posY * 32, "whiteWorld");
     game.physics.arcade.enable(whiteWorld);
     whiteWorld.body.collideWorldBounds = false;
@@ -259,14 +261,15 @@ var Game = {
   },
 
   laserRojoVertical : function(){
-    //iterador = 0; determinar si es necesario inicializarlo acá
     var posX = player.body.x;
     var posY = 0;
-
     var laserRojo = laserRojoGroup.getFirstDead(true, posX, posY);
+
     laserRojo.body.immovable = true;
     laserRojo.body.allowGravity = false;
-    laserRojo.alpha = 0.1;
+    //laserRojo.alpha = 0.1;
+    laserRojo.animations.add('laserRojo', [0,1,2,3,4,5,6,7,9,10,11,12,13,14], 10, false);
+    laserRojo.play('laserRojo');    
   },
 
   changeWarning : function()
@@ -322,8 +325,6 @@ var Game = {
     player.body.collideWorldBounds = true;
     
     player.body.setSize(32,16,0,11);
-
-    //player.body._dx = 10;
 
     player.animations.add('camaleonWalkGreen', [0,1,2,3], 20, true);
     player.animations.add('camaleonJumpGreen', [4,5,6,7,8,9,10,11], 12, true);
