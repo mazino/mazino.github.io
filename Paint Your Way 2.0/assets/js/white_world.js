@@ -1,7 +1,5 @@
-var GlobalScore = 0; //Variable que contiene el Score general de juego
-var bmd, map, layer, marker, currentTile;
-var score;
-var scoreTextValue, nBlackTextValue, textStyle_Key, textStyle_Value;
+/*var bmd, map, layer, marker, currentTile;
+var score, scoreTextValue, nBlackTextValue, textStyle_Key, textStyle_Value;
 
 var cursors;
 var player;
@@ -13,67 +11,39 @@ var floors;
 var timer;
 var A,S,D,F;
 var obstacles;
-var velocityUp;
-var whiteWorld;
-var laserRojo;
-var laserRojoGroup;
-var iterador; //Tiempo en que se active el rayo laser.
+var velocityUp;*/
 
-var Game = {
+var White_World = {
   preload : function() {
     game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon2.png', 31, 27);
-    game.load.image('floor', 'assets/images/spikess.png');
-    game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
-    game.load.image('backgroundGreen', 'assets/images/backgroundGreen.png');
-    
-    game.load.image('changeBlue', 'assets/images/changeBlue.png');
-    game.load.image('changeGreen', 'assets/images/changeGreen.png');    
+    game.load.image('floor', 'assets/images/spikess.png');    
+    game.load.image('backgroundWhite', 'assets/images/backgroundWhite.png');
 
     game.load.image('obstacle', 'assets/images/obstacle.png');
-    game.load.image('laserRojo', 'assets/images/laser_rojo.png');
-    game.load.image('whiteWorld', 'assets/images/whiteWorld.png');
 
   },
 
   create : function() {
-    //TGS.Analytics.logGameEvent('begin');
-
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 450;
 
     // Create our Timer
-    timer = game.time.create(false);
-    //timer.loop(3000, this.changeWarning2, this);
-    //timer.loop(5000, this.addScore, this);
-
-    //Por defecto background inicial Rojo
-    background = game.add.tileSprite(0, 0, 800, 600, "backgroundGreen");
+    timer = game.time.create(false);    
+    
+    background = game.add.tileSprite(0, 0, 800, 600, "backgroundWhite");
     background.fixedToCamera = true;
-
-    //init variables
-    colorBackground = ["backgroundRed","backgroundBlue","backgroundGreen","backgroundBlack"];
-    changeBackground = ["changeRed","changeBlue","changeGreen","changeBlack"];
-    backgroundDelay = 10;
-    screenDelay = 9;
+    
     jumpTimer = 0;
     currentTile = 0;
-    velocityUp = 0;
-    aux = 0;
     score = 0;
 
     //Paleta de colores
     map = game.add.tilemap();
     bmd = game.add.bitmapData(32 * 2, 32 * 1);
-    var color = Phaser.Color.createColor(0,112,166);//Blue
+    var color = Phaser.Color.createColor(64,64,64);//Black
     bmd.rect(0*32, 0, 32, 32, color.rgba);
-    color = Phaser.Color.createColor(12,153,81); //Green
-    bmd.rect(1*32, 0, 64, 32, color.rgba);
-
-    //Eliminar los 2 de abajo sobrantes
-    color = Phaser.Color.createColor(0,180,0);
-    bmd.rect(2*32, 0, 64, 32, color.rgba);
-    color = Phaser.Color.createColor(51,0,51);
-    bmd.rect(3*32, 0, 64, 32, color.rgba); 
+    color = Phaser.Color.createColor(255,255,255); //White
+    bmd.rect(1*32, 0, 64, 32, color.rgba);   
 
     //  Add a Tileset image to the map
     map.addTilesetImage('tiles', bmd);
@@ -89,7 +59,6 @@ var Game = {
     
     //Se setea Blanco con collider debido al background inicial Azul, y color Negro siempre tiene Collider;
     map.setCollision([0], true);
-    //map.setCollision(3, true);
 
     //  Create our tile selector at the top of the screen
     this.createTileSelector();
@@ -108,9 +77,7 @@ var Game = {
     game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;    
     
     this.createFloor();
-    this.obstaclesCreate();
-    this.itemWhiteWorldCreate();
-    this.laserRojoVerticalCreate();
+    this.obstaclesCreate();    
 
     // Crea Player
     this.createPlayer();
@@ -119,8 +86,6 @@ var Game = {
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     A = game.input.keyboard.addKey(Phaser.Keyboard.A);
     S = game.input.keyboard.addKey(Phaser.Keyboard.S);
-    //D = game.input.keyboard.addKey(Phaser.Keyboard.D);
-    //F = game.input.keyboard.addKey(Phaser.Keyboard.F);
 
     game.input.addMoveCallback(this.updateMarker, this);
 
@@ -130,30 +95,11 @@ var Game = {
   update : function() {
     game.world.setBounds(player.xChange, 0, game.width + player.xChange, game.world.height);
 
-    game.physics.arcade.collide(player, layer);
+    game.physics.arcade.collide(player, layer);    
 
     this.addScore();
 
     this.playerMove();
-
-    if(player.body.blocked.right){
-      iterador += 1;
-    }
-    else if(!player.body.blocked.right){
-      iterador = 0;
-    }
-
-    if(iterador == 50){
-      this.laserRojoVertical();
-    }
-
-    if(timer.seconds > screenDelay){
-      this.changeWarning();
-    }
-
-    if(timer.seconds > backgroundDelay){
-      this.changeBackground();
-    }
 
     obstacles.forEach(function(obstacle) {
       if(game.physics.arcade.distanceBetween(obstacle, player) > 1000)
@@ -173,60 +119,19 @@ var Game = {
         obstacle.body.allowGravity = false;
         return obstacle;
       }
-    });    
-
-    laserRojoGroup.forEach(function(laserRojo) {
-      if(laserRojo.alpha < 1){
-        laserRojo.alpha += 0.01
-      }
-      if(game.physics.arcade.distanceBetween(laserRojo, player) > 1000){
-        laserRojo.kill();
-      }
     });
 
-    game.physics.arcade.overlap(laserRojoGroup, player, this.playerLaserCollision, null, this);
     game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
     game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
-    game.physics.arcade.overlap(player, whiteWorld, this.changeWhiteWorld, null, this);
   },
 
   playerCollision : function(){
-    if((player.animations.name == "camaleonWalkBlue" || player.animations.name == "camaleonJumpBlue") && background.key == "backgroundBlue"){
-      //Hacer nada
-    }
-    else if((player.animations.name == "camaleonWalkGreen" || player.animations.name == "camaleonJumpGreen") && background.key == "backgroundGreen"){
-      //Hacer nada
-    }
-    else{
-      this.gameOver();
-    }
-  },
-
-  playerLaserCollision : function(pj, laser){
-    if(laser.alpha >= 1){
-      this.gameOver();
-    }
+    this.gameOver();
   },
 
   addScore : function(){
     score = Math.floor(player.x / 50) + GlobalScore;
     scoreTextValue.text = score.toString();
-  },
-
-  itemWhiteWorldCreate : function(){
-    var posX = game.rnd.integerInRange(600, 700);
-    var posY = game.rnd.integerInRange(8 , 10);
-    whiteWorld = game.add.sprite(posX, posY * 32, "whiteWorld");
-    game.physics.arcade.enable(whiteWorld);
-    whiteWorld.body.collideWorldBounds = false;
-    whiteWorld.scale.setTo(0.25, 0.25);
-    whiteWorld.body.immovable = true;
-    whiteWorld.body.allowGravity = false;
-  },
-
-  changeWhiteWorld :function(){
-    GlobalScore = score;
-    game.state.start('WhiteWorld');
   },
 
   obstaclesCreate : function() {
@@ -252,51 +157,6 @@ var Game = {
     return obstacle;
   },
 
-  laserRojoVerticalCreate : function(){
-    laserRojoGroup = game.add.group();
-    laserRojoGroup.enableBody = true;
-    laserRojoGroup.createMultiple(10, 'laserRojo', 0, false);
-  },
-
-  laserRojoVertical : function(){
-    //iterador = 0; determinar si es necesario inicializarlo acá
-    var posX = player.body.x;
-    var posY = 0;
-
-    var laserRojo = laserRojoGroup.getFirstDead(true, posX, posY);
-    laserRojo.body.immovable = true;
-    laserRojo.body.allowGravity = false;
-    laserRojo.alpha = 0.1;
-  },
-
-  changeWarning : function()
-  { 
-    //var indice = game.rnd.integerInRange(0, 2);
-    if (background.key == colorBackground[2]){ // Si background es verde entonces,
-      background.loadTexture(changeBackground[1]); //Avisar el cambio a Blue      
-    }    
-    else if (background.key == colorBackground[1]){ // Si background es Azul entonces,
-      background.loadTexture(changeBackground[2]); //Avisar el cambio a Verde
-    }
-    screenDelay = timer.seconds + 10;
-  },
-
-  changeBackground : function(indice){
-    if (background.key == changeBackground[2]){ // Si changeBackground es Verde
-      background.loadTexture(colorBackground[2]); //Cambiar el background a Verde
-      map.setCollision(0, true); //Activar colision con color Azul
-      map.setCollision(1,false); //Desactivar color Verde
-    }
-
-    else if(background.key == changeBackground[1]){ //Si el aviso de cambio de BG es Azul
-      background.loadTexture(colorBackground[1]); //Entonces, cambiar el background a Azul
-      map.setCollision(1, true); //Activar colision con color Verde
-      map.setCollision(0,false); //Desactivar color Azul
-    }
-    backgroundDelay = timer.seconds + 10;
-    velocityUp += 20;
-  },
-
   createFloor : function(){
     floors = game.add.group();
     floors.enableBody = true;
@@ -313,8 +173,7 @@ var Game = {
 
     player.xOrig = player.x;
     player.xChange = 0;
-
-    //No aseguramos que el jugador comienza al inicio del mapa
+    //Asegurarse de setear al jugador al inicio del mapa
     game.world.setBounds(player.xChange, 0, game.width, game.world.height);
 
     game.physics.arcade.enable(player);
@@ -323,33 +182,21 @@ var Game = {
     
     player.body.setSize(32,16,0,11);
 
-    //player.body._dx = 10;
-
     player.animations.add('camaleonWalkGreen', [0,1,2,3], 20, true);
     player.animations.add('camaleonJumpGreen', [4,5,6,7,8,9,10,11], 12, true);
     player.animations.add('camaleonWalkBlue', [12,13,14,15], 20, true);
     player.animations.add('camaleonJumpBlue', [16,17,18,19,20,21,22,23], 12, true);
+    
   },
 
   playerMove : function(){
     player.body.velocity.x = 150 + velocityUp;
 
-    if(currentTile == 0){ //si estamos en color Azul
-      if(player.body.onFloor()){
-        player.play('camaleonWalkBlue');
-      }
-      else{
-        player.play('camaleonJumpBlue'); 
-      }
+    if(player.body.onFloor()){
+      player.play('camaleonWalkBlue');
     }
-
-    else if(currentTile == 1){ //Si estamos en color verde
-      if(player.body.onFloor()){
-        player.play('camaleonWalkGreen');
-      }
-      else{
-        player.play('camaleonJumpGreen');
-      }
+    else{
+      player.play('camaleonJumpBlue');
     }
 
     //Si player está en el suelo su caja de colision es player.body.setSize(32,16,0,11);
@@ -442,18 +289,5 @@ var Game = {
   },
 
   render : function(){
-    //game.debug.cameraInfo(game.camera, 500, 100);
-    //game.debug.spriteInfo(player, 32, 400);
-    //game.debug.text('Time: ' + timer.seconds , 32, 200);
-    //game.debug.body(player);
-    //game.debug.body(floors.getFirstAlive());
-    //game.debug.body(obstacles.getFirstAlive());
-    //game.debug.text('MouseX: ' + game.input.activePointer.x , 32, 80);
-    //game.debug.text('MouseY: ' + game.input.activePointer.y , 180, 80);
-    //game.debug.text('x: ' + layer.getTileX(marker.x) , 32, 100);
-    //game.debug.text('y: ' + layer.getTileX(marker.y) , 180, 100);
-    //game.debug.text('Time: ' + timer.seconds , 32, 200);
-    //game.debug.text('nBlack: ' + nBlack , 32, 250);
-    //game.debug.text('world height: ' + game.world.height , 32, 150);
   }
 }

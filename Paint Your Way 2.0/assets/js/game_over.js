@@ -29,9 +29,10 @@ var Game_Over = {
     // Add text with information about the score from last game.
     game.add.text(260, 400, "LAST SCORE", 
       { font: "bold 20px sans-serif", fill: "#46c0f9", align: "center"}).fixedToCamera = true;
-    game.add.text(397, 400, score.toString(),
+    game.add.text(397, 400, GlobalScore.toString(),
       { font: "bold 20px sans-serif", fill: "#fff", align: "center" }).fixedToCamera = true;
 
+    GlobalScore = 0;
     //TGS.Analytics.logLevelEvent('fail', score);
     //TGS.Analytics.logCustomEvent('game over', score);
   },
