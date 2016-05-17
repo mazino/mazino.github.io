@@ -21,7 +21,7 @@ var iterador; //Tiempo en que se active el rayo laser.
 
 var Game = {
   preload : function() {
-    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon2.png', 31, 27);
+    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
     game.load.image('floor', 'assets/images/spikess.png');
     game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
     game.load.image('backgroundGreen', 'assets/images/backgroundGreen.png');
@@ -177,10 +177,6 @@ var Game = {
     });    
 
     laserRojoGroup.forEach(function(laserRojo) {
-      /*if(laserRojo.alpha < 1){
-        laserRojo.alpha += 0.01
-      }
-      */
       if(laserRojo.frame == 14){
         laserRojo.kill();
       }

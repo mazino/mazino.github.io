@@ -21,11 +21,11 @@ var nLaserH;
 
 var White_World = {
   preload : function() {
-    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon2.png', 31, 27);
+    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
     game.load.image('floor', 'assets/images/spikess.png');    
     game.load.image('backgroundWhite', 'assets/images/backgroundWhite.png');
 
-    game.load.image('laserRojoHorizontal', 'assets/images/laser_rojo_horizontal.png');
+    game.load.spritesheet('laserRojoHorizontal', 'assets/images/laser_horizontal.png',800,32);
 
   },
 
@@ -43,7 +43,7 @@ var White_World = {
     currentTile = 0;
     score = 0;
     laserDelay = 4;
-    nLaserH = 6;
+    nLaserH = 3;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -118,12 +118,25 @@ var White_World = {
       this.laserRojoHorizontal();
     }
 
+    laserRojoHGroup.forEach(function(laserRojo) {
+      if(laserRojo.frame == 14){
+        laserRojo.kill();
+      }
+    });
+
+    game.physics.arcade.overlap(laserRojoHGroup, player, this.playerLaserCollision, null, this);
     game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
     game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
   },
 
   playerCollision : function(){
     this.gameOver();
+  },
+
+  playerLaserCollision : function(pj, laser){
+    if(laser.frame == 10){
+      this.gameOver();
+    }
   },
 
   addScore : function(){
@@ -146,12 +159,24 @@ var White_World = {
 
       laserRojoH.body.immovable = true;
       laserRojoH.body.allowGravity = false;
-      laserRojoH.alpha = 0.2;  
+      laserRojoH.fixedToCamera = true;
+      laserRojoH.body.setSize(800,20,0,6);
+      laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
+      laserRojoH.play('laserRojo');
+    }
+
+    for(var i = 0; i < (nLaserH - 1); i++){
+      var laserRojoH = laserRojoHGroup.getFirstDead(true, posX, posY*32 - (i+1)*64);
+
+      laserRojoH.body.immovable = true;
+      laserRojoH.body.allowGravity = false;
+      laserRojoH.fixedToCamera = true;
+      laserRojoH.body.setSize(800,20,0,6);
+      laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
+      laserRojoH.play('laserRojo');
     }
 
     laserDelay = timer.seconds + 4;
-    //laserRojoH.animations.add('laserRojo', [0,1], 10, false);
-    //laserRojoH.play('laserRojo');
   },
 
   createFloor : function(){
@@ -179,8 +204,8 @@ var White_World = {
     
     player.body.setSize(32,16,0,11);
 
-    player.animations.add('camaleonWalkGreen', [0,1,2,3], 20, true);
-    player.animations.add('camaleonJumpGreen', [4,5,6,7,8,9,10,11], 12, true);
+    player.animations.add('camaleonWalkBlack', [24,25,26,27], 20, true);
+    player.animations.add('camaleonJumpBlack', [28,29,30,31,32,33,34,35], 12, true);
     player.animations.add('camaleonWalkBlue', [12,13,14,15], 20, true);
     player.animations.add('camaleonJumpBlue', [16,17,18,19,20,21,22,23], 12, true);
     
@@ -190,10 +215,10 @@ var White_World = {
     player.body.velocity.x = 150 + velocityUp;
 
     if(player.body.onFloor()){
-      player.play('camaleonWalkBlue');
+      player.play('camaleonWalkBlack');
     }
     else{
-      player.play('camaleonJumpBlue');
+      player.play('camaleonJumpBlack');
     }
 
     //Si player está en el suelo su caja de colision es player.body.setSize(32,16,0,11);
@@ -219,7 +244,7 @@ var White_World = {
 
     if (jumpButton.isDown && player.body.onFloor() && game.time.now > jumpTimer)
     {
-      player.body.velocity.y = -250;
+      player.body.velocity.y = -220;
       jumpTimer = game.time.now + 750;
     }
   },
@@ -285,6 +310,10 @@ var White_World = {
     game.state.start('Game_Over');
   },
 
-  render : function(){
+  render : function(){    
+     laserRojoHGroup.forEach(function(laserRojo) {
+        //game.debug.body(laserRojo);
+      
+    });
   }
 }
