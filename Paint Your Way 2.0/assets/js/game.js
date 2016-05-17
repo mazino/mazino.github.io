@@ -144,7 +144,7 @@ var Game = {
       iterador = 0;
     }
 
-    if(iterador == 50){
+    if(iterador == 40){
       this.laserRojoVertical();
     }
 
