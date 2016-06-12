@@ -19,9 +19,9 @@ var laserRojo;
 var laserRojoGroup;
 var iterador; //Tiempo en que se active el rayo laser.
 
-var music_mundo1;
+var music_mundo1,music_mundo2;
 var sfx_salto;
-var sfx_laser;
+var sfx_laser, sfx_laser2;
 var sfx_cambio;
 var sfx_colision;
 
@@ -42,10 +42,14 @@ var Game = {
     game.load.image('whiteWorld', 'assets/images/whiteWorld.png');
 
     game.load.audio('music_mundo1', 'assets/musica/Music-Mundo1/MusicTest1Mundo1Fran0.wav');
+    game.load.audio('music_mundo2', 'assets/musica/Music-Mundo2/LaserMusicTest1Zota.wav');
 
     game.load.audio('sfx_colision', 'assets/musica/SoundFX-Colision/ColisionFXTest1.mp3');
     game.load.audio('sfx_cambio', 'assets/musica/SoundFX-CambioColor/CambioColorFXTest1.mp3');
+
     game.load.audio('sfx_laser', 'assets/musica/SoundFX-Laser/LaserFXTest1.wav');
+    game.load.audio('sfx_laser2', 'assets/musica/SoundFX-Laser/LaserFXTest2.wav');
+
     game.load.audio('sfx_salto', 'assets/musica/SoundFX-Salto/GiroAireFXTest1.mp3');
 
   },
@@ -257,6 +261,7 @@ var Game = {
 
   changeWhiteWorld :function(){
     GlobalScore = score;
+    sfx_salto.stop();
     music_mundo1.stop();
     game.state.start('WhiteWorld');
   },

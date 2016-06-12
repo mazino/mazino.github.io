@@ -34,7 +34,13 @@ var White_World = {
     game.physics.arcade.gravity.y = 450;
 
     // Create our Timer
-    timer = game.time.create(false);    
+    timer = game.time.create(false);
+
+    music_mundo2 = game.add.audio('music_mundo2', 1, true);
+    music_mundo2.play();
+
+    sfx_laser = game.add.audio('sfx_laser2');
+    sfx_laser.addMarker('laser', 2.5, 2);
     
     background = game.add.tileSprite(0, 0, 800, 600, "backgroundWhite");
     background.fixedToCamera = true;
@@ -163,6 +169,7 @@ var White_World = {
       laserRojoH.body.setSize(800,20,0,6);
       laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
       laserRojoH.play('laserRojo');
+      sfx_laser.play('laser');
     }
 
     for(var i = 0; i < (nLaserH - 1); i++){
@@ -305,6 +312,8 @@ var White_World = {
 
   gameOver : function(){
     //TGS.Analytics.logGameEvent('end');
+    sfx_colision.play('colision');
+    music_mundo2.stop();
     game.world.setBounds(0, 0, game.width, game.height);
     GlobalScore = score;
     game.state.start('Game_Over');
