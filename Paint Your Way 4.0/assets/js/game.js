@@ -216,7 +216,7 @@ var Game = {
     {
       var x = Math.floor(game.camera.x + 600)/32; //Math.floor((game.camera.x + game.rnd.integerInRange(800 , 1000))/32);
       x = x * 32;
-      var y = game.rnd.integerInRange(4 , 20);
+      var y = game.rnd.integerInRange(6 , 18);
       whiteWorld.reset(x, y * 32);
     }
    
