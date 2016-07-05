@@ -19,8 +19,17 @@ var laserRojo;
 var laserRojoGroup;
 var iterador; //Tiempo en que se active el rayo laser.
 
+var music_mundo1,music_mundo2;
+var sfx_salto;
+var sfx_laser, sfx_laser2;
+var sfx_cambio;
+var sfx_colision;
+
+var caidaLibre;
+
 var Game = {
   preload : function() {
+    //Sprites
     game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
     game.load.image('floor', 'assets/images/spikess.png');
     game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
@@ -33,6 +42,18 @@ var Game = {
     game.load.spritesheet('laserRojo', 'assets/images/laser_vertical.png',32,800);
     game.load.image('whiteWorld', 'assets/images/whiteWorld.png');
 
+    //Sonidos
+    game.load.audio('music_mundo1', 'assets/musica/Music-Mundo1/MundoB&G LOOP.mp3');
+    game.load.audio('music_mundo2', 'assets/musica/Music-Mundo2/MundoB&N.mp3');
+
+    game.load.audio('sfx_colision', 'assets/musica/SoundFX-Colision/ColisionFXTest1.mp3');
+    game.load.audio('sfx_cambio', 'assets/musica/SoundFX-CambioColor/Cambiocolor.mp3');
+
+    game.load.audio('sfx_laser', 'assets/musica/SoundFX-Laser/Laser.mp3');
+    game.load.audio('sfx_laser2', 'assets/musica/SoundFX-Laser/LaserFXTest2.wav');
+
+    game.load.audio('sfx_salto', 'assets/musica/SoundFX-Salto/Jump.mp3');
+
   },
 
   create : function() {
@@ -40,6 +61,20 @@ var Game = {
 
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 450;
+
+    music_mundo1 = game.add.audio('music_mundo1', 0.6, true);
+    music_mundo1.play();
+    
+    sfx_salto = game.add.audio('sfx_salto', 0.3, false);
+    //sfx_salto.addMarker('salto', 3.5, 2, 2,true);
+
+    sfx_colision = game.add.audio('sfx_colision');
+    sfx_colision.addMarker('colision', 0.2, 1);
+
+    sfx_cambio = game.add.audio('sfx_cambio', 0.4, false);
+    //sfx_cambio.addMarker('cambio_color', 0.2, 1, 0.3);
+
+    sfx_laser = game.add.audio('sfx_laser');
 
     // Create our Timer
     timer = game.time.create(false);
@@ -60,6 +95,7 @@ var Game = {
     velocityUp = 0;
     aux = 0;
     score = 0;
+    caidaLibre = 0;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -224,6 +260,8 @@ var Game = {
 
   changeWhiteWorld :function(){
     GlobalScore = score;
+    sfx_salto.stop();
+    music_mundo1.stop();
     game.state.start('WhiteWorld');
   },
 
@@ -265,7 +303,12 @@ var Game = {
     laserRojo.body.allowGravity = false;
     //laserRojo.alpha = 0.1;
     laserRojo.animations.add('laserRojo', [0,1,2,3,4,5,6,7,9,10,11,12,13,14], 10, false);
-    laserRojo.play('laserRojo');    
+    laserRojo.play('laserRojo');
+    game.time.events.add(Phaser.Timer.SECOND * 0.25, this.laserPlay, this);
+  },
+
+  laserPlay : function(){
+    sfx_laser.play();
   },
 
   changeWarning : function()
@@ -308,7 +351,7 @@ var Game = {
   },
 
   createPlayer : function() {
-    player = game.add.sprite(96, game.world.centerY - 30, 'camaleonWalk');
+    player = game.add.sprite(96, game.world.centerY - 5, 'camaleonWalk');
 
     player.xOrig = player.x;
     player.xChange = 0;
@@ -352,21 +395,30 @@ var Game = {
     //Si player está en el suelo su caja de colision es player.body.setSize(32,16,0,11);
     if(player.body.onFloor()){
       player.body.setSize(32,16,0,11);
+      sfx_salto.stop();
+      caidaLibre = 0;
     }
     //Si player está en el aire su colsion es player.body.setSize(32,32,0,0)
     else{
       player.body.setSize(21,16,6,9);
-    }
+      caidaLibre++;
+      if(caidaLibre == 1){
+        sfx_salto.play();
+      }
+    }    
 
     player.xChange = Math.max(Math.abs(player.x - player.xOrig), player.xChange);
     if(A.isDown){
       currentTileMarker.x = 0;
       currentTileMarker.y = 0;
-      currentTile = 0;      
+      currentTile == 1 ? sfx_cambio.play() : false
+      currentTile = 0;
+
     }
     else if(S.isDown){
       currentTileMarker.x = 32;
       currentTileMarker.y = 0;
+      currentTile == 0 ? sfx_cambio.play() : false
       currentTile = 1;
     }
 
@@ -374,7 +426,7 @@ var Game = {
     {
       player.body.velocity.y = -250;
       jumpTimer = game.time.now + 750;
-    }
+    }    
   },
 
   pickTile: function(sprite, pointer) {
@@ -433,6 +485,10 @@ var Game = {
 
   gameOver : function(){
     //TGS.Analytics.logGameEvent('end');
+    sfx_colision.play('colision');
+    music_mundo1.stop();
+    sfx_laser.stop();
+    sfx_salto.stop();
     game.world.setBounds(0, 0, game.width, game.height);
     GlobalScore = score;
     game.state.start('Game_Over');
