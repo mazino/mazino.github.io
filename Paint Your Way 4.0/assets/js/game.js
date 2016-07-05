@@ -29,6 +29,7 @@ var caidaLibre;
 
 var Game = {
   preload : function() {
+    //Sprites
     game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
     game.load.image('floor', 'assets/images/spikess.png');
     game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
@@ -41,16 +42,17 @@ var Game = {
     game.load.spritesheet('laserRojo', 'assets/images/laser_vertical.png',32,800);
     game.load.image('whiteWorld', 'assets/images/whiteWorld.png');
 
-    game.load.audio('music_mundo1', 'assets/musica/Music-Mundo1/MusicTest1Mundo1Zota.wav');
-    game.load.audio('music_mundo2', 'assets/musica/Music-Mundo2/LaserMusicTest1Zota.wav');
+    //Sonidos
+    game.load.audio('music_mundo1', 'assets/musica/Music-Mundo1/MundoB&G LOOP.mp3');
+    game.load.audio('music_mundo2', 'assets/musica/Music-Mundo2/MundoB&N.mp3');
 
     game.load.audio('sfx_colision', 'assets/musica/SoundFX-Colision/ColisionFXTest1.mp3');
-    game.load.audio('sfx_cambio', 'assets/musica/SoundFX-CambioColor/CambioColorFXTest1.mp3');
+    game.load.audio('sfx_cambio', 'assets/musica/SoundFX-CambioColor/Cambiocolor.mp3');
 
-    game.load.audio('sfx_laser', 'assets/musica/SoundFX-Laser/LaserFXTest1.wav');
+    game.load.audio('sfx_laser', 'assets/musica/SoundFX-Laser/Laser.mp3');
     game.load.audio('sfx_laser2', 'assets/musica/SoundFX-Laser/LaserFXTest2.wav');
 
-    game.load.audio('sfx_salto', 'assets/musica/SoundFX-Salto/GiroAireFXTest1.mp3');
+    game.load.audio('sfx_salto', 'assets/musica/SoundFX-Salto/Jump.mp3');
 
   },
 
@@ -60,22 +62,19 @@ var Game = {
     game.physics.startSystem(Phaser.Physics.ARCADE);
     game.physics.arcade.gravity.y = 450;
 
-    music_mundo1 = game.add.audio('music_mundo1', 1, true);
+    music_mundo1 = game.add.audio('music_mundo1', 0.6, true);
     music_mundo1.play();
     
-    sfx_salto = game.add.audio('sfx_salto');
-    sfx_salto.addMarker('salto', 3.5, 2, 1,true);
+    sfx_salto = game.add.audio('sfx_salto', 0.3, false);
+    //sfx_salto.addMarker('salto', 3.5, 2, 2,true);
 
     sfx_colision = game.add.audio('sfx_colision');
     sfx_colision.addMarker('colision', 0.2, 1);
 
-    sfx_cambio = game.add.audio('sfx_cambio');
-    sfx_cambio.addMarker('cambio_color', 0.2, 1, 0.2);
+    sfx_cambio = game.add.audio('sfx_cambio', 0.4, false);
+    //sfx_cambio.addMarker('cambio_color', 0.2, 1, 0.3);
 
     sfx_laser = game.add.audio('sfx_laser');
-    sfx_laser.addMarker('laser', 2.5, 1.5);
-
-   
 
     // Create our Timer
     timer = game.time.create(false);
@@ -145,7 +144,7 @@ var Game = {
     game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;    
     
     this.createFloor();
-    //this.obstaclesCreate();
+    this.obstaclesCreate();
     this.itemWhiteWorldCreate();
     this.laserRojoVerticalCreate();
 
@@ -193,7 +192,7 @@ var Game = {
       this.changeBackground();
     }
 
-/*    obstacles.forEach(function(obstacle) {
+    obstacles.forEach(function(obstacle) {
       if(game.physics.arcade.distanceBetween(obstacle, player) > 1000)
       {
         obstacle.kill();
@@ -201,7 +200,7 @@ var Game = {
         x = x * 32;
         //var y = game.rnd.integerInRange(50 , game.world.height - 50);
         //var x = game.camera.x + game.rnd.integerInRange(25 , 31);
-        var y = game.rnd.integerInRange(4 , 15);
+        var y = game.rnd.integerInRange(2 , 15);
         var obstacle = obstacles.getFirstDead();
         //obstacle.reset(x,y);
         obstacle.reset(x, y * 32);
@@ -211,8 +210,17 @@ var Game = {
         obstacle.body.allowGravity = false;
         return obstacle;
       }
-    });    
-*/
+    });
+
+    if(game.physics.arcade.distanceBetween(whiteWorld, player) > 2200)
+    {
+      var x = Math.floor(game.camera.x + 600)/32; //Math.floor((game.camera.x + game.rnd.integerInRange(800 , 1000))/32);
+      x = x * 32;
+      var y = game.rnd.integerInRange(4 , 20);
+      whiteWorld.reset(x, y * 32);
+    }
+   
+
     laserRojoGroup.forEach(function(laserRojo) {
       if(laserRojo.frame == 14){
         laserRojo.kill();
@@ -249,8 +257,8 @@ var Game = {
   },
 
   itemWhiteWorldCreate : function(){
-    var posX = game.rnd.integerInRange(400, 500);
-    var posY = game.rnd.integerInRange(8 , 9);
+    var posX = 2000;//game.rnd.integerInRange(400, 500);
+    var posY = game.rnd.integerInRange(3 , 20);
     whiteWorld = game.add.sprite(posX, posY * 32, "whiteWorld");
     game.physics.arcade.enable(whiteWorld);
     whiteWorld.body.collideWorldBounds = false;
@@ -305,7 +313,11 @@ var Game = {
     //laserRojo.alpha = 0.1;
     laserRojo.animations.add('laserRojo', [0,1,2,3,4,5,6,7,9,10,11,12,13,14], 10, false);
     laserRojo.play('laserRojo');
-    sfx_laser.play('laser');
+    game.time.events.add(Phaser.Timer.SECOND * 0.25, this.laserPlay, this);
+  },
+
+  laserPlay : function(){
+    sfx_laser.play();
   },
 
   changeWarning : function()
@@ -400,7 +412,7 @@ var Game = {
       player.body.setSize(21,16,6,9);
       caidaLibre++;
       if(caidaLibre == 1){
-        sfx_salto.play('salto');
+        sfx_salto.play();
       }
     }    
 
@@ -408,14 +420,14 @@ var Game = {
     if(A.isDown){
       currentTileMarker.x = 0;
       currentTileMarker.y = 0;
-      currentTile == 1 ? sfx_cambio.play('cambio_color') : false
+      currentTile == 1 ? sfx_cambio.play() : false
       currentTile = 0;
 
     }
     else if(S.isDown){
       currentTileMarker.x = 32;
       currentTileMarker.y = 0;
-      currentTile == 0 ? sfx_cambio.play('cambio_color') : false
+      currentTile == 0 ? sfx_cambio.play() : false
       currentTile = 1;
     }
 

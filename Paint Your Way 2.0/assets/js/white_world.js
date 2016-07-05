@@ -18,7 +18,6 @@ var laserRojoH;
 var laserRojoV;
 var laserDelay;
 var nLaserH;
-var intervalosLaser;
 
 var White_World = {
   preload : function() {
@@ -35,13 +34,7 @@ var White_World = {
     game.physics.arcade.gravity.y = 450;
 
     // Create our Timer
-    timer = game.time.create(false);
-
-    music_mundo2 = game.add.audio('music_mundo2', 0.5, true);
-    music_mundo2.play();
-
-    sfx_laser = game.add.audio('sfx_laser2');
-    sfx_laser.addMarker('laser', 2.5, 2, 0.3, false);
+    timer = game.time.create(false);    
     
     background = game.add.tileSprite(0, 0, 800, 600, "backgroundWhite");
     background.fixedToCamera = true;
@@ -49,9 +42,8 @@ var White_World = {
     jumpTimer = 0;
     currentTile = 0;
     score = 0;
-    laserDelay = 3;
+    laserDelay = 4;
     nLaserH = 3;
-    intervalosLaser = 1.4;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -132,24 +124,9 @@ var White_World = {
       }
     });
 
-    //Cambiar esto, hacerlo menos estatico
-    if(score > 100 && score < 250){
-      nLaserH = 4;
-      intervalosLaser = 1.2;
-    }
-    else if(score > 250 && score < 500){
-      nLaserH = 5;
-      intervalosLaser = 1;
-    }
-    else if(score > 500){
-      nLaserH = 6;
-      intervalosLaser = 0.9;
-    }
-
     game.physics.arcade.overlap(laserRojoHGroup, player, this.playerLaserCollision, null, this);
     game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
     game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
-
   },
 
   playerCollision : function(){
@@ -174,11 +151,10 @@ var White_World = {
   },
 
   laserRojoHorizontal: function() {
-    for(var i = 0; i < nLaserH; i++){
-      game.time.events.add(Phaser.Timer.SECOND * i * intervalosLaser, this.laserPlay, this);
-    }
+    var posX = 0;    
+    var posY = Math.floor(player.y / 32);
 
-    /*for(var i = 0; i < nLaserH; i++){
+    for(var i = 0; i < nLaserH; i++){
       var laserRojoH = laserRojoHGroup.getFirstDead(true, posX, posY*32 + i*64);
 
       laserRojoH.body.immovable = true;
@@ -187,7 +163,6 @@ var White_World = {
       laserRojoH.body.setSize(800,20,0,6);
       laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
       laserRojoH.play('laserRojo');
-      sfx_laser.play('laser');
     }
 
     for(var i = 0; i < (nLaserH - 1); i++){
@@ -199,23 +174,9 @@ var White_World = {
       laserRojoH.body.setSize(800,20,0,6);
       laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
       laserRojoH.play('laserRojo');
-    }*/
+    }
 
-    laserDelay = timer.seconds + 2*nLaserH;
-  },
-
-  laserPlay : function(){
-    var posX = 0;
-    var posY = Math.floor(player.y / 32);
-    var laserRojoH = laserRojoHGroup.getFirstDead(true, posX*32, posY*32);
-
-    laserRojoH.body.immovable = true;
-    laserRojoH.body.allowGravity = false;
-    laserRojoH.fixedToCamera = true;
-    laserRojoH.body.setSize(800,20,0,6);
-    laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
-    laserRojoH.play('laserRojo');
-    sfx_laser.play('laser');
+    laserDelay = timer.seconds + 4;
   },
 
   createFloor : function(){
@@ -344,8 +305,6 @@ var White_World = {
 
   gameOver : function(){
     //TGS.Analytics.logGameEvent('end');
-    sfx_colision.play('colision');
-    music_mundo2.stop();
     game.world.setBounds(0, 0, game.width, game.height);
     GlobalScore = score;
     game.state.start('Game_Over');
