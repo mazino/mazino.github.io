@@ -33,6 +33,8 @@ var Game_Over = {
       { font: "bold 20px sans-serif", fill: "#fff", align: "center" }).fixedToCamera = true;
 
     GlobalScore = 0;
+    vidas = 3;
+    eggsCount = 0;
     //TGS.Analytics.logLevelEvent('fail', score);
     //TGS.Analytics.logCustomEvent('game over', score);
   },

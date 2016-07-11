@@ -52,6 +52,7 @@ var White_World = {
     laserDelay = 3;
     nLaserH = 3;
     intervalosLaser = 1.4;
+    playerGolpe = false;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -80,7 +81,7 @@ var White_World = {
     this.createTileSelector();
 
     // Add Text to top of game.
-    textStyle_Key = { font: "bold 14px sans-serif", fill: "#46c0f9", align: "center" };
+    textStyle_Key = { font: "bold 16px sans-serif", fill: "#46c0f9", align: "center" };
     textStyle_Value = { font: "bold 18px sans-serif", fill: "#46c0f9", align: "center" };
 
     // Score.
@@ -90,13 +91,28 @@ var White_World = {
 
     // Letras con que se activa cada Tile
     game.add.text(12, 10, "A", textStyle_Key).fixedToCamera = true;
-    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;    
+    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;
+
+     //Vidas
+    game.add.sprite(560, 30, 'camaleonWalk',24).fixedToCamera = true;
+    game.add.text(600, 40, "x", textStyle_Key).fixedToCamera = true;
+    vidasTextValue = game.add.text(614, 38, vidas.toString(), textStyle_Value);
+    vidasTextValue.fixedToCamera = true;
+
+    //huevos
+    game.add.sprite(660, 30, 'eggs').fixedToCamera = true;
+    game.add.text(700, 40, "x", textStyle_Key).fixedToCamera = true;
+    eggsTextValue = game.add.text(714, 38, eggsCount.toString(), textStyle_Value);
+    eggsTextValue.fixedToCamera = true;
+    game.add.text(730, 40, "/10", textStyle_Key).fixedToCamera = true;
     
     this.createFloor();
     this.laserRojoCreate();    
 
     // Crea Player
     this.createPlayer();
+
+    this.eggsCreate();
 
     this.itemWhiteWorldCreate();
 
@@ -148,21 +164,112 @@ var White_World = {
       intervalosLaser = 0.9;
     }
 
-    game.physics.arcade.overlap(laserRojoHGroup, player, this.playerLaserCollision, null, this);
-    game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
+    if(Worlds.countLiving() > 0){
+      if(player.x > Worlds.getFirstAlive().x +  400)
+      {
+        whiteWorld = Worlds.getFirstAlive();
+
+        var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 2000 , game.camera.x + 2500)/32);
+        var posY = game.rnd.integerInRange(2 , 16);
+
+        whiteWorld.reset(posX*32, posY*32);
+
+        whiteWorld.body.setSize(whiteWorld.width - 4, whiteWorld.height - 2, -1, 2);      
+        whiteWorld.body.immovable = true;
+        whiteWorld.body.allowGravity = false;
+      }
+    }
+
+    if(eggsCount == 10){
+      vidas += 1;
+      eggsCount = 0;
+      player.body.velocity.x -= 50;
+      if(player.body.velocity.x < 150){
+        player.body.velocity.x = 150;
+      }
+      vidasTextValue.text = vidas.toString();
+      eggsTextValue.text = eggsCount.toString();
+
+    }
+
+    if(eggs.countLiving() > 0){
+      if(player.x > eggs.getFirstAlive().x +  400)
+      {
+        egg = eggs.getFirstAlive();
+        var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 1000 , game.camera.x + 1200)/32);
+        var posY = game.rnd.integerInRange(2 , 15);
+        egg.reset(posX*32, posY*32);
+        egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);
+        egg.body.immovable = true;
+        egg.body.allowGravity = false;
+      }
+    }
+
+    if(eggs.countLiving() == 0){
+      egg = eggs.getFirstDead();
+
+      var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 1000 , game.camera.x + 1200)/32);
+      var posY = game.rnd.integerInRange(2 , 15);
+
+      egg.reset(posX*32, posY*32);
+
+      egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);      
+      egg.body.immovable = true;
+      egg.body.allowGravity = false;
+    }
+
+    if(playerGolpe == false){
+      game.physics.arcade.overlap(laserRojoHGroup, player, this.playerLaserCollision, null, this);
+    }
+
+    game.physics.arcade.overlap(player, eggs, this.playerEgg, null, this);
     game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
     game.physics.arcade.overlap(player, whiteWorld, this.changeWhiteWorld, null, this);
 
   },
 
-  playerCollision : function(){
-    this.gameOver();
-  },
-
   playerLaserCollision : function(pj, laser){
     if(laser.frame == 10){
-      this.gameOver();
+      if(vidas > 1){
+        vidas -=1;
+        vidasTextValue.text = vidas.toString();
+        player.alpha = 0.5;
+        playerGolpe = true;
+        game.time.events.add(Phaser.Timer.SECOND * 1.5, this.playerTime, this);
+        sfx_colision.play('colision');
+      }
+      else{
+        this.gameOver();
+      }
     }
+  },
+
+  playerTime : function(){
+    player.alpha = 1;
+    playerGolpe = false;
+  },
+
+  eggsCreate : function() {
+    eggs = game.add.group();
+    eggs.enableBody = true;
+    eggs.createMultiple(1, 'eggs');
+
+    egg = eggs.getFirstDead();
+
+    var posX = Math.floor(game.rnd.integerInRange(1000 , 1200)/32);
+    var posY = game.rnd.integerInRange(2 , 15);
+    egg.reset(posX*32, posY*32);
+
+    egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);
+    egg.body.immovable = true;
+    egg.body.allowGravity = false;
+  },
+
+  playerEgg : function(){
+    eggsCount += 1;
+    eggsTextValue.text = eggsCount.toString();
+    egg = eggs.getFirstAlive();
+    egg.kill();
   },
 
   addScore : function(){
@@ -171,11 +278,16 @@ var White_World = {
   },
 
   itemWhiteWorldCreate : function(){
-    var posX = 2500;//game.rnd.integerInRange(400, 500);
-    var posY = game.rnd.integerInRange(3 , 20);
-    whiteWorld = game.add.sprite(posX, posY * 32, "whiteWorld");
-    game.physics.arcade.enable(whiteWorld);
-    whiteWorld.body.collideWorldBounds = false;
+    Worlds = game.add.group();
+    Worlds.enableBody = true;
+    Worlds.createMultiple(1, 'whiteWorld');
+
+    whiteWorld = Worlds.getFirstDead();
+
+    var posX = Math.floor(game.rnd.integerInRange(2000 , 2500)/32);
+    var posY = game.rnd.integerInRange(2 , 16);
+
+    whiteWorld.reset(posX*32, posY*32);
     whiteWorld.scale.setTo(0.25, 0.25);
     whiteWorld.body.immovable = true;
     whiteWorld.body.allowGravity = false;
