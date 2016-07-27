@@ -61,11 +61,9 @@ var Game = {
     // Create our Timer
     timer = game.time.create(false);
 
-    game.add.tileSprite(0, 0, 800, 600, "bg").fixedToCamera = true;
-    background = game.add.tileSprite(0, 0, 800, 600, "backgroundGreen");
+    background = game.add.tileSprite(0, 0, 800, 600, "backgroundGreen");    
     background.fixedToCamera = true;
-    background.alpha = 0.8
-    
+    game.add.tileSprite(0, 0, 800, 600, "backgroundBlue");
 
     //init variables
     colorBackground = ["backgroundRed","backgroundBlue","backgroundGreen","backgroundBlack"];
@@ -97,10 +95,10 @@ var Game = {
 
     //  Populate some tiles for our player to start on with color Blue
     for (var i = 0; i < 20; i++){
-      i < 10 ? map.putTile(0, i, 10, layer) : map.putTile(0, i, 10, layer);
+      i < 10 ? map.putTile(1, i, 10, layer) : map.putTile(0, i, 10, layer);
     }
     //Se setea azul con collider debido al background inicial Verde
-    map.setCollision([0], true);
+    map.setCollision([1], true);
 
     //  Create our tile selector at the top of the screen
     this.createTileSelector();
