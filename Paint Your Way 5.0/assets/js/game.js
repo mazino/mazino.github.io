@@ -5,16 +5,18 @@ var scoreTextValue, nBlackTextValue, textStyle_Key, textStyle_Value;
 
 var cursors;
 var player;
+var vidas = 3,vidasTextValue;
+var egg, eggs, eggsCount = 0, eggsTextValue;
+var playerGolpe;
 var jumpButton, jumpTimer;
 
 var background, colorBackground, backgroundDelay, changeBackground, screenDelay;
 var index;
 var floors;
 var timer;
-var A,S,D,F;
+var A,S;
 var obstacles;
 var velocityUp;
-var whiteWorld;
 var laserRojo;
 var laserRojoGroup;
 var iterador; //Tiempo en que se active el rayo laser.
@@ -27,30 +29,14 @@ var sfx_colision;
 
 var caidaLibre;
 
+var LEVEL_LENGHT = 101;
+var lvlup;
+var checkRepetition = [];
+var yBefore = 0;
+var xBefore = 0;
+
 var Game = {
   preload : function() {
-    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
-    game.load.image('floor', 'assets/images/spikess.png');
-    game.load.image('backgroundBlue', 'assets/images/backgroundBlue.png');
-    game.load.image('backgroundGreen', 'assets/images/backgroundGreen.png');
-    
-    game.load.image('changeBlue', 'assets/images/changeBlue.png');
-    game.load.image('changeGreen', 'assets/images/changeGreen.png');    
-
-    game.load.image('obstacle', 'assets/images/obstacle.png');
-    game.load.spritesheet('laserRojo', 'assets/images/laser_vertical.png',32,800);
-    game.load.image('whiteWorld', 'assets/images/whiteWorld.png');
-
-    game.load.audio('music_mundo1', 'assets/musica/Music-Mundo1/MusicTest1Mundo1Fran0.wav');
-    game.load.audio('music_mundo2', 'assets/musica/Music-Mundo2/LaserMusicTest1Zota.wav');
-
-    game.load.audio('sfx_colision', 'assets/musica/SoundFX-Colision/ColisionFXTest1.mp3');
-    game.load.audio('sfx_cambio', 'assets/musica/SoundFX-CambioColor/CambioColorFXTest1.mp3');
-
-    game.load.audio('sfx_laser', 'assets/musica/SoundFX-Laser/LaserFXTest1.wav');
-    game.load.audio('sfx_laser2', 'assets/musica/SoundFX-Laser/LaserFXTest2.wav');
-
-    game.load.audio('sfx_salto', 'assets/musica/SoundFX-Salto/GiroAireFXTest1.mp3');
 
   },
 
@@ -63,28 +49,23 @@ var Game = {
     music_mundo1 = game.add.audio('music_mundo1', 0.6, true);
     music_mundo1.play();
     
-    sfx_salto = game.add.audio('sfx_salto');
-    sfx_salto.addMarker('salto', 3.5, 2, 1.5,true);
+    sfx_salto = game.add.audio('sfx_salto', 0.3, false);
 
     sfx_colision = game.add.audio('sfx_colision');
     sfx_colision.addMarker('colision', 0.2, 1);
 
-    sfx_cambio = game.add.audio('sfx_cambio');
-    sfx_cambio.addMarker('cambio_color', 0.2, 1, 0.2);
+    sfx_cambio = game.add.audio('sfx_cambio', 0.4, false);
 
     sfx_laser = game.add.audio('sfx_laser');
-    sfx_laser.addMarker('laser', 2.5, 1.5);
-
-   
 
     // Create our Timer
     timer = game.time.create(false);
-    //timer.loop(3000, this.changeWarning2, this);
-    //timer.loop(5000, this.addScore, this);
 
-    //Por defecto background inicial Rojo
+    game.add.tileSprite(0, 0, 800, 600, "bg").fixedToCamera = true;
     background = game.add.tileSprite(0, 0, 800, 600, "backgroundGreen");
     background.fixedToCamera = true;
+    background.alpha = 0.8
+    
 
     //init variables
     colorBackground = ["backgroundRed","backgroundBlue","backgroundGreen","backgroundBlack"];
@@ -97,6 +78,7 @@ var Game = {
     aux = 0;
     score = 0;
     caidaLibre = 0;
+    playerGolpe = false;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -106,33 +88,25 @@ var Game = {
     color = Phaser.Color.createColor(12,153,81); //Green
     bmd.rect(1*32, 0, 64, 32, color.rgba);
 
-    //Eliminar los 2 de abajo sobrantes
-    color = Phaser.Color.createColor(0,180,0);
-    bmd.rect(2*32, 0, 64, 32, color.rgba);
-    color = Phaser.Color.createColor(51,0,51);
-    bmd.rect(3*32, 0, 64, 32, color.rgba); 
-
     //  Add a Tileset image to the map
     map.addTilesetImage('tiles', bmd);
 
     //  Creates a new blank layer and sets the map dimensions.
     //  In this case the map is 40x30 tiles in size and the tiles are 32x32 pixels in size.
-    layer = map.create('level1', 2000, 30, 32, 32); //Intentar Corregir el 2000
+    layer = map.create('level1', LEVEL_LENGHT, 30, 32, 32); //Intentar Corregir el 2000
 
     //  Populate some tiles for our player to start on with color Blue
     for (var i = 0; i < 20; i++){
       i < 10 ? map.putTile(0, i, 10, layer) : map.putTile(0, i, 10, layer);
     }
-    
-    //Se setea Blanco con collider debido al background inicial Azul, y color Negro siempre tiene Collider;
+    //Se setea azul con collider debido al background inicial Verde
     map.setCollision([0], true);
-    //map.setCollision(3, true);
 
     //  Create our tile selector at the top of the screen
     this.createTileSelector();
 
     // Add Text to top of game.
-    textStyle_Key = { font: "bold 14px sans-serif", fill: "#46c0f9", align: "center" };
+    textStyle_Key = { font: "bold 16px sans-serif", fill: "#46c0f9", align: "center" };
     textStyle_Value = { font: "bold 18px sans-serif", fill: "#46c0f9", align: "center" };
 
     // Score.
@@ -142,12 +116,28 @@ var Game = {
 
     // Letras con que se activa cada Tile
     game.add.text(12, 10, "A", textStyle_Key).fixedToCamera = true;
-    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;    
+    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;
+
+    //Vidas
+    game.add.sprite(560, 30, 'camaleonWalk',24).fixedToCamera = true;
+    game.add.text(600, 40, "x", textStyle_Key).fixedToCamera = true;
+    vidasTextValue = game.add.text(614, 38, vidas.toString(), textStyle_Value);
+    vidasTextValue.fixedToCamera = true;
+
+    //huevos
+    game.add.sprite(660, 30, 'eggs').fixedToCamera = true;
+    game.add.text(700, 40, "x", textStyle_Key).fixedToCamera = true;
+    eggsTextValue = game.add.text(714, 38, eggsCount.toString(), textStyle_Value);
+    eggsTextValue.fixedToCamera = true;
+    game.add.text(730, 40, "/10", textStyle_Key).fixedToCamera = true;
     
     this.createFloor();
-    //this.obstaclesCreate();
-    this.itemWhiteWorldCreate();
+    this.lvlUp();
+    this.obstaclesCreate();
+    this.eggsCreate();
     this.laserRojoVerticalCreate();
+    this.createMiniMap();
+    this.createChamaleonHead();
 
     // Crea Player
     this.createPlayer();
@@ -156,8 +146,6 @@ var Game = {
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
     A = game.input.keyboard.addKey(Phaser.Keyboard.A);
     S = game.input.keyboard.addKey(Phaser.Keyboard.S);
-    //D = game.input.keyboard.addKey(Phaser.Keyboard.D);
-    //F = game.input.keyboard.addKey(Phaser.Keyboard.F);
 
     game.input.addMoveCallback(this.updateMarker, this);
 
@@ -165,13 +153,25 @@ var Game = {
   },
 
   update : function() {
-    game.world.setBounds(player.xChange, 0, game.width + player.xChange, game.world.height);
+    if(game.camera.bounds.width <= LEVEL_LENGHT*32){
+      game.world.setBounds(player.xChange, 0, game.width + player.xChange, game.world.height);
+    }
 
     game.physics.arcade.collide(player, layer);
 
     this.addScore();
+    this.updateMiniMap();
 
     this.playerMove();
+
+    if(eggsCount == 10){
+      vidas += 1;
+      eggsCount = 0;
+      player.body.velocity.x -= 85;
+      vidasTextValue.text = vidas.toString();
+      eggsTextValue.text = eggsCount.toString();
+
+    }
 
     //Si el cambio es bloqueado por la derecha, activar laser vertical
     if(player.body.blocked.right){
@@ -182,7 +182,7 @@ var Game = {
     }
 
     if(iterador == 40){
-      this.laserRojoVertical();
+      this.laserRojoVertical();      
     }
 
     if(timer.seconds > screenDelay){
@@ -193,36 +193,132 @@ var Game = {
       this.changeBackground();
     }
 
-/*    obstacles.forEach(function(obstacle) {
-      if(game.physics.arcade.distanceBetween(obstacle, player) > 1000)
-      {
-        obstacle.kill();
-        var x =  Math.floor((game.camera.x + game.rnd.integerInRange(800 , 1000))/32);
-        x = x * 32;
-        //var y = game.rnd.integerInRange(50 , game.world.height - 50);
-        //var x = game.camera.x + game.rnd.integerInRange(25 , 31);
-        var y = game.rnd.integerInRange(4 , 15);
-        var obstacle = obstacles.getFirstDead();
-        //obstacle.reset(x,y);
-        obstacle.reset(x, y * 32);
-        obstacle.scale.setTo(1, 0.75);
-        obstacle.body.setSize(obstacle.width + 2, obstacle.height + 32, -1);
-        obstacle.body.immovable = true;
-        obstacle.body.allowGravity = false;
-        return obstacle;
-      }
-    });    
-*/
+    //var yBefore = 0;
+    //var xBefore = 0;
+    /*obstacles.forEachAlive(function(obstacleGroup) {
+      obstacleGroup.forEachAlive(function(obstacle){
+        if(obstacle.x < (game.camera.bounds.left - 32))
+          obstacle.kill();
+      }, this);
+    }, this);*/
+    obstacles.forEach(function(obstacleGroup) {
+      var k = 0;
+      var x = 0;
+      var y = 0;
+      var n = obstacleGroup.length;
+      obstacleGroup.forEach(function(obstacle){
+        if(obstacle.x < (game.camera.bounds.left - 32)) {
+          if (k === 0) {
+            if (xBefore === 0)
+              x = Math.floor(game.camera.x/32)*32 + 832;
+            else if (xBefore != 0) {
+              x = game.rnd.integerInRange(1,10)
+              if (x >= 3) {
+                x = xBefore + game.rnd.integerInRange(3, 6)*32;
+                checkRepetition = [];
+              }
+              else
+                x = xBefore;
+            }
+            if (x === xBefore)
+              checkRepetition[checkRepetition.length] = 1;
+            if (checkRepetition.length === 2) {
+              x = xBefore + game.rnd.integerInRange(5,15)*32;
+            y = game.rnd.integerInRange(2, 12)*32;
+            checkRepetition = [];
+            }
+            if (x < game.camera.bounds.left + 800)
+              x = Math.floor(game.camera.x/32)*32 + 832;
+            else if (checkRepetition.length === 1) {
+              if (yBefore/32 > 7 && player.y < 128) {
+              y = 2*32;
+              }
+              else if (yBefore/32 > 7 && yBefore/32 < 8) {          
+                y = game.rnd.integerInRange(0,1);
+                if (y = 0)
+                  y = game.rnd.integerInRange(2 , yBefore/32-5)*32;
+                else
+                  y = game.rnd.integerInRange(yBefore/32+5, 12)*32;
+              }
+              else if (yBefore/32 > 7)
+                y = game.rnd.integerInRange(2 , yBefore/32-5)*32;
+              else if (yBefore/32 < 8)
+                y = game.rnd.integerInRange(yBefore/32+5, 12)*32;
+              else {
+                x = xBefore + game.rnd.integerInRange(5,14)*32;
+                y = game.rnd.integerInRange(2, 12)*32;
+              }
+            }
+            else {
+              if (player.y < 128) { //si el jugador esta arriba entonce hay un 70% de probabilidades de que aparezca un obstaculo a esa altura
+                y = game.rnd.integerInRange(1,10);
+                if (y >= 4)
+                  y = game.rnd.integerInRange(1, 3)*32;
+                else
+                  y = game.rnd.integerInRange(3, 12)*32;
+              }
+              else
+                y = game.rnd.integerInRange(1, 12)*32;
+            }
+            k = 1;
+            yBefore = y;
+            xBefore = x;
+          }
+          obstacle.kill();
+          var obstacle = obstacleGroup.getFirstDead();
+          obstacle.reset(x, y+(k*32));
+          obstacle.body.immovable = true;
+          obstacle.body.allowGravity = false;
+          k += 1;
+          xBefore = x;
+          return obstacle;
+        }
+      },this);
+      return obstacleGroup;
+    },this);
+
     laserRojoGroup.forEach(function(laserRojo) {
       if(laserRojo.frame == 14){
         laserRojo.kill();
       }
     });
 
-    game.physics.arcade.overlap(laserRojoGroup, player, this.playerLaserCollision, null, this);
-    game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
-    game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
-    game.physics.arcade.overlap(player, whiteWorld, this.changeWhiteWorld, null, this);
+    if(eggs.countLiving() > 0){
+      if(player.x > eggs.getFirstAlive().x +  400)
+      {
+        egg = eggs.getFirstAlive();
+
+        var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 1000 , game.camera.x + 1200)/32);
+        var posY = game.rnd.integerInRange(2 , 15);
+
+        egg.reset(posX*32, posY*32);
+        egg.body.immovable = true;
+        egg.body.allowGravity = false;
+      }
+    }
+
+    if(eggs.countLiving() == 0){
+      egg = eggs.getFirstDead();
+
+      var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 1000 , game.camera.x + 1200)/32);
+      var posY = game.rnd.integerInRange(2 , 15);
+
+      egg.reset(posX*32, posY*32);
+      egg.body.immovable = true;
+      egg.body.allowGravity = false;
+    }
+
+    if(playerGolpe == false){
+        game.physics.arcade.overlap(laserRojoGroup, player, this.playerLaserCollision, null, this);
+        obstacles.forEachAlive(function(obstaclesGroup){
+          game.physics.arcade.overlap(player, obstaclesGroup, this.playerCollision, null, this);
+        }, this);
+    }
+
+    game.physics.arcade.overlap(obstacles, eggs, this.overlapEgg, null, this);
+    game.physics.arcade.overlap(player, eggs, this.playerEgg, null, this);
+    game.physics.arcade.overlap(player, lvlup, this.playerLvlup, null, this);
+    game.physics.arcade.overlap(player, floors, this.playerFloorCollision, null, this);
   },
 
   playerCollision : function(){
@@ -233,60 +329,118 @@ var Game = {
       //Hacer nada
     }
     else{
-      this.gameOver();
+      if(vidas > 1){
+        vidas -=1;
+        vidasTextValue.text = vidas.toString();
+        player.alpha = 0.5;
+        playerGolpe = true;
+        game.time.events.add(Phaser.Timer.SECOND * 1.5, this.playerTime, this);
+        sfx_colision.play('colision');
+      }
+      else{
+        this.gameOver();
+      }
     }
   },
 
   playerLaserCollision : function(pj, laser){
     if(laser.frame == 10){
-      this.gameOver();
+      if(vidas > 1){
+        vidas -=1;
+        vidasTextValue.text = vidas.toString();
+        player.alpha = 0.5;
+        playerGolpe = true;
+        game.time.events.add(Phaser.Timer.SECOND * 1.5, this.playerTime, this);
+        sfx_colision.play('colision');
+      }
+      else{
+        this.gameOver();
+      }
     }
   },
 
+  playerTime : function(){
+    player.alpha = 1;
+    playerGolpe = false;
+    iterador = 0;
+  },
+
+  playerFloorCollision : function(){
+    this.gameOver();
+  },
+
   addScore : function(){
-    score = Math.floor(player.x / 50) + GlobalScore;
+    score = Math.floor(player.x / 32) + GlobalScore;
     scoreTextValue.text = score.toString();
   },
 
-  itemWhiteWorldCreate : function(){
-    var posX = game.rnd.integerInRange(400, 500);
-    var posY = game.rnd.integerInRange(8 , 9);
-    whiteWorld = game.add.sprite(posX, posY * 32, "whiteWorld");
-    game.physics.arcade.enable(whiteWorld);
-    whiteWorld.body.collideWorldBounds = false;
-    whiteWorld.scale.setTo(0.25, 0.25);
-    whiteWorld.body.immovable = true;
-    whiteWorld.body.allowGravity = false;
+  updateMiniMap : function() {
+    var movX = player.x/(LEVEL_LENGHT)*7;
+    chamaleonHead.cameraOffset.setTo(272+movX, 32);
   },
 
-  changeWhiteWorld :function(){
-    GlobalScore = score;
-    sfx_salto.stop();
-    music_mundo1.stop();
-    game.state.start('WhiteWorld');
+  eggsCreate : function() {
+    eggs = game.add.group();
+    eggs.enableBody = true;
+    eggs.createMultiple(1, 'eggs');
+
+    egg = eggs.getFirstDead();
+
+    var posX = Math.floor(game.rnd.integerInRange(1000 , 1200)/32);
+    var posY = game.rnd.integerInRange(2 , 15);
+    egg.reset(posX*32, posY*32);
+
+    egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);
+    egg.body.immovable = true;
+    egg.body.allowGravity = false;
+  },
+
+  overlapEgg : function(){
+    egg = eggs.getFirstAlive();
+    var posX = Math.floor(game.rnd.integerInRange(1000 , 1200)/32);
+    var posY = game.rnd.integerInRange(2 , 17);
+    egg.x = egg.x + 128;
+  },
+
+  playerEgg : function(){
+    eggsCount += 1;
+    eggsTextValue.text = eggsCount.toString();
+    egg = eggs.getFirstAlive();
+    egg.kill();
   },
 
   obstaclesCreate : function() {
     obstacles = game.add.group();
     obstacles.enableBody = true;
-    obstacles.createMultiple(6, 'obstacle');
-
-    var x = game.rnd.integerInRange(this.game.width, this.game.world.width - this.game.width);
-    for (var i = 0; i < 4; i++) {
-      //this.obstaclesCreateOne(game.rnd.integerInRange(game.world.width - 200, game.world.width - 50), game.rnd.integerInRange(50 , game.world.height - 100));
-      this.obstaclesCreateOne(game.rnd.integerInRange(32, 40), game.rnd.integerInRange(4 , 15));
+    var n = game.rnd.integerInRange(5,8);
+    for (var i = 0; i < n; i++) {
+      this.obstaclesGroup();
     }
   },
 
-  obstaclesCreateOne: function(x, y) {
-    var obstacle = obstacles.getFirstDead();
-    //obstacle.reset(x,y);
-    obstacle.reset(x * 32, y * 32);
-    obstacle.body.setSize(obstacle.width + 2, obstacle.height, -1);
-    obstacle.scale.setTo(1, 0.75);
-    obstacle.body.immovable = true;
+  obstaclesGroup: function() {
+    obstacleGroup = game.add.group();
+    obstacleGroup.enableBody = true;
+    var n = game.rnd.integerInRange(1,3);
+    var obstacle = obstacleGroup.getFirstDead(true,-32,0, 'Obstacle - Mutant Plant'); //parte de arriba del obstaculo
+    obstacle.body.setSize(28, 20, 2, 2);
+    obstacle.frame = 0;
     obstacle.body.allowGravity = false;
-    return obstacle;
+    obstacle.body.immovable = true;
+    for (var i = 0; i < n; i++) {
+      var obstacle = obstacleGroup.getFirstDead(true,-32,32*(i+1), 'Obstacle - Mutant Plant'); //partes del medio, pueden ser entre 1 y 3 en total para cada obstaculo (cada obstaculo varia en largo)
+      obstacle.body.setSize(28, 20, 2, 6);
+      obstacle.frame = 1;
+      obstacle.body.allowGravity = false;
+      obstacle.body.immovable = true;
+    }
+    var obstacle = obstacleGroup.getFirstDead(true,-32,32*(n+1), 'Obstacle - Mutant Plant'); //parte de abajo del obstaculo
+    obstacle.body.setSize(28, 20, 2, 10);
+    obstacle.frame = 2;
+    obstacle.body.allowGravity = false;
+    obstacle.body.immovable = true;
+  obstacles.add(obstacleGroup);
+    return obstacleGroup;
   },
 
   laserRojoVerticalCreate : function(){
@@ -302,10 +456,13 @@ var Game = {
 
     laserRojo.body.immovable = true;
     laserRojo.body.allowGravity = false;
-    //laserRojo.alpha = 0.1;
     laserRojo.animations.add('laserRojo', [0,1,2,3,4,5,6,7,9,10,11,12,13,14], 10, false);
     laserRojo.play('laserRojo');
-    sfx_laser.play('laser');
+    game.time.events.add(Phaser.Timer.SECOND * 0.25, this.laserPlay, this);
+  },
+
+  laserPlay : function(){
+    sfx_laser.play();
   },
 
   changeWarning : function()
@@ -340,14 +497,42 @@ var Game = {
     floors = game.add.group();
     floors.enableBody = true;
     var floor = floors.create(0, game.world.height - 32, 'floor');
-    //floor.scale.x = game.world.width;
-    //floor.scale.setTo(0.25, 0.25);
     floor.fixedToCamera = true;
     floor.body.immovable = true;
     floor.body.allowGravity = false;
   },
 
+  playerLvlup : function(){
+    GlobalScore = score;
+    sfx_salto.stop();
+    music_mundo1.stop();
+    game.state.start('WhiteWorld');
+  },
+
+  lvlUp : function() {
+    lvlup = game.add.sprite((LEVEL_LENGHT-1)*32,0,"lvlEnd");
+    game.physics.arcade.enable(lvlup);
+    lvlup.enableBody = true;
+    lvlup.body.immovable = true;
+    lvlup.body.allowGravity = false;
+  },
+
+  createChamaleonHead : function() {
+    chamaleonHead = game.add.sprite(272,32,"chamaleonHead");
+    chamaleonHead.fixedToCamera = true;
+    chamaleonHead.allowGravity = false;
+  },
+
+  createMiniMap : function() {
+    miniMapSprite = game.add.sprite(240,0,"miniMapSprite");
+    miniMapSprite.fixedToCamera = true;
+    miniMapSprite.immovable = true;
+    miniMapSprite.allowGravity = false;
+  },
+
   createPlayer : function() {
+    checkRepetition = [];
+    xBefore = 0;
     player = game.add.sprite(96, game.world.centerY - 5, 'camaleonWalk');
 
     player.xOrig = player.x;
@@ -397,10 +582,11 @@ var Game = {
     }
     //Si player está en el aire su colsion es player.body.setSize(32,32,0,0)
     else{
-      player.body.setSize(21,16,6,9);
+      player.body.setSize(32,16,0,11);
+      //player.body.setSize(21,16,6,9);
       caidaLibre++;
       if(caidaLibre == 1){
-        sfx_salto.play('salto');
+        sfx_salto.play();
       }
     }    
 
@@ -408,14 +594,14 @@ var Game = {
     if(A.isDown){
       currentTileMarker.x = 0;
       currentTileMarker.y = 0;
-      currentTile == 1 ? sfx_cambio.play('cambio_color') : false
+      currentTile == 1 ? sfx_cambio.play() : false
       currentTile = 0;
 
     }
     else if(S.isDown){
       currentTileMarker.x = 32;
       currentTileMarker.y = 0;
-      currentTile == 0 ? sfx_cambio.play('cambio_color') : false
+      currentTile == 0 ? sfx_cambio.play() : false
       currentTile = 1;
     }
 
@@ -423,7 +609,7 @@ var Game = {
     {
       player.body.velocity.y = -250;
       jumpTimer = game.time.now + 750;
-    }    
+    }
   },
 
   pickTile: function(sprite, pointer) {
@@ -437,7 +623,6 @@ var Game = {
     y /= 32;
 
     currentTile = x + (y * 25);
-
   },
 
   updateMarker : function() {
@@ -447,7 +632,16 @@ var Game = {
     if (game.input.mousePointer.isDown && marker.y > 32 && marker.y < (game.world.height - 32))
     {
       //Acá utilizar sprite en vez de currenTile
-      map.putTile(currentTile, layer.getTileX(marker.x), layer.getTileY(marker.y), layer);
+      var tile = map.getTile(layer.getTileX(marker.x), layer.getTileY(marker.y), layer, false)
+      if(tile == null){
+        map.putTile(currentTile, layer.getTileX(marker.x), layer.getTileY(marker.y), layer);
+      }
+      else{
+        //Se puede pintar si estoy pintando con un color diferente del tile detectado.
+        if(tile.index != currentTile){
+          map.putTile(currentTile, layer.getTileX(marker.x), layer.getTileY(marker.y), layer);
+        }
+      }
     }
   },
 
@@ -497,7 +691,14 @@ var Game = {
     //game.debug.text('Time: ' + timer.seconds , 32, 200);
     //game.debug.body(player);
     //game.debug.body(floors.getFirstAlive());
-    //game.debug.body(obstacles.getFirstAlive());
+    /*obstacles.forEachAlive(function(obstaclesGroup){
+      obstaclesGroup.forEachAlive(function(obstacle){
+        game.debug.body(obstacle);
+      }, this);
+    }, this);
+    */
+    //game.debug.body(obstacleGroup.getFirstAlive());
+    //game.debug.body(eggs.getFirstAlive());
     //game.debug.text('MouseX: ' + game.input.activePointer.x , 32, 80);
     //game.debug.text('MouseY: ' + game.input.activePointer.y , 180, 80);
     //game.debug.text('x: ' + layer.getTileX(marker.x) , 32, 100);

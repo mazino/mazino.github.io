@@ -1,32 +1,14 @@
-/*var bmd, map, layer, marker, currentTile;
-var score, scoreTextValue, nBlackTextValue, textStyle_Key, textStyle_Value;
-
-var cursors;
-var player;
-var jumpButton, jumpTimer;
-
-var background, colorBackground, backgroundDelay, changeBackground, screenDelay;
-var index;
-var floors;
-var timer;
-var A,S,D,F;
-var obstacles;
-var velocityUp;*/
 var laserRojoHGroup;
 var laserRojoVGroup;
 var laserRojoH;
 var laserRojoV;
 var laserDelay;
 var nLaserH;
+var intervalosLaser;
 
 var White_World = {
+
   preload : function() {
-    game.load.spritesheet('camaleonWalk', 'assets/images/Camaleon.png', 31, 27);
-    game.load.image('floor', 'assets/images/spikess.png');    
-    game.load.image('backgroundWhite', 'assets/images/backgroundWhite.png');
-
-    game.load.spritesheet('laserRojoHorizontal', 'assets/images/laser_horizontal.png',800,32);
-
   },
 
   create : function() {
@@ -36,11 +18,11 @@ var White_World = {
     // Create our Timer
     timer = game.time.create(false);
 
-    music_mundo2 = game.add.audio('music_mundo2', 1, true);
+    music_mundo2 = game.add.audio('music_mundo2', 0.5, true);
     music_mundo2.play();
 
     sfx_laser = game.add.audio('sfx_laser2');
-    sfx_laser.addMarker('laser', 2.5, 2, 0.4);
+    sfx_laser.addMarker('laser', 2.5, 2, 0.3, false);
     
     background = game.add.tileSprite(0, 0, 800, 600, "backgroundWhite");
     background.fixedToCamera = true;
@@ -48,8 +30,10 @@ var White_World = {
     jumpTimer = 0;
     currentTile = 0;
     score = 0;
-    laserDelay = 4;
+    laserDelay = 3;
     nLaserH = 3;
+    intervalosLaser = 1.4;
+    playerGolpe = false;
 
     //Paleta de colores
     map = game.add.tilemap();
@@ -78,7 +62,7 @@ var White_World = {
     this.createTileSelector();
 
     // Add Text to top of game.
-    textStyle_Key = { font: "bold 14px sans-serif", fill: "#46c0f9", align: "center" };
+    textStyle_Key = { font: "bold 16px sans-serif", fill: "#46c0f9", align: "center" };
     textStyle_Value = { font: "bold 18px sans-serif", fill: "#46c0f9", align: "center" };
 
     // Score.
@@ -88,13 +72,28 @@ var White_World = {
 
     // Letras con que se activa cada Tile
     game.add.text(12, 10, "A", textStyle_Key).fixedToCamera = true;
-    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;    
+    game.add.text(44, 10, "S", textStyle_Key).fixedToCamera = true;
+
+     //Vidas
+    game.add.sprite(560, 30, 'camaleonWalk',24).fixedToCamera = true;
+    game.add.text(600, 40, "x", textStyle_Key).fixedToCamera = true;
+    vidasTextValue = game.add.text(614, 38, vidas.toString(), textStyle_Value);
+    vidasTextValue.fixedToCamera = true;
+
+    //huevos
+    game.add.sprite(660, 30, 'eggs').fixedToCamera = true;
+    game.add.text(700, 40, "x", textStyle_Key).fixedToCamera = true;
+    eggsTextValue = game.add.text(714, 38, eggsCount.toString(), textStyle_Value);
+    eggsTextValue.fixedToCamera = true;
+    game.add.text(730, 40, "/10", textStyle_Key).fixedToCamera = true;
     
     this.createFloor();
     this.laserRojoCreate();    
 
     // Crea Player
     this.createPlayer();
+
+    this.eggsCreate();
 
     cursors = game.input.keyboard.createCursorKeys();
     jumpButton = game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -130,19 +129,109 @@ var White_World = {
       }
     });
 
-    game.physics.arcade.overlap(laserRojoHGroup, player, this.playerLaserCollision, null, this);
-    game.physics.arcade.overlap(obstacles, player, this.playerCollision, null, this);
-    game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
-  },
+    //Cambiar esto, hacerlo menos estatico
+    if(score > 100 && score < 250){
+      nLaserH = 4;
+      intervalosLaser = 1.2;
+    }
+    else if(score > 250 && score < 500){
+      nLaserH = 5;
+      intervalosLaser = 1;
+    }
+    else if(score > 500){
+      nLaserH = 6;
+      intervalosLaser = 0.9;
+    }
 
-  playerCollision : function(){
-    this.gameOver();
+    if(eggsCount == 10){
+      vidas += 1;
+      eggsCount = 0;
+      player.body.velocity.x -= 50;
+      if(player.body.velocity.x < 150){
+        player.body.velocity.x = 150;
+      }
+      vidasTextValue.text = vidas.toString();
+      eggsTextValue.text = eggsCount.toString();
+
+    }
+
+    if(eggs.countLiving() > 0){
+      if(player.x > eggs.getFirstAlive().x +  400)
+      {
+        egg = eggs.getFirstAlive();
+        var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 1000 , game.camera.x + 1200)/32);
+        var posY = game.rnd.integerInRange(2 , 15);
+        egg.reset(posX*32, posY*32);
+        egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);
+        egg.body.immovable = true;
+        egg.body.allowGravity = false;
+      }
+    }
+
+    if(eggs.countLiving() == 0){
+      egg = eggs.getFirstDead();
+
+      var posX = Math.floor(game.rnd.integerInRange(game.camera.x + 1000 , game.camera.x + 1200)/32);
+      var posY = game.rnd.integerInRange(2 , 15);
+
+      egg.reset(posX*32, posY*32);
+
+      egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);      
+      egg.body.immovable = true;
+      egg.body.allowGravity = false;
+    }
+
+    if(playerGolpe == false){
+      game.physics.arcade.overlap(laserRojoHGroup, player, this.playerLaserCollision, null, this);
+    }
+
+    game.physics.arcade.overlap(player, eggs, this.playerEgg, null, this);
+    game.physics.arcade.overlap(player, floors, this.gameOver, null, this);
+
   },
 
   playerLaserCollision : function(pj, laser){
     if(laser.frame == 10){
-      this.gameOver();
+      if(vidas > 1){
+        vidas -=1;
+        vidasTextValue.text = vidas.toString();
+        player.alpha = 0.5;
+        playerGolpe = true;
+        game.time.events.add(Phaser.Timer.SECOND * 1.5, this.playerTime, this);
+        sfx_colision.play('colision');
+      }
+      else{
+        this.gameOver();
+      }
     }
+  },
+
+  playerTime : function(){
+    player.alpha = 1;
+    playerGolpe = false;
+  },
+
+  eggsCreate : function() {
+    eggs = game.add.group();
+    eggs.enableBody = true;
+    eggs.createMultiple(1, 'eggs');
+
+    egg = eggs.getFirstDead();
+
+    var posX = Math.floor(game.rnd.integerInRange(1000 , 1200)/32);
+    var posY = game.rnd.integerInRange(2 , 15);
+    egg.reset(posX*32, posY*32);
+
+    egg.body.setSize(egg.width - 4, egg.height - 2, -1, 2);
+    egg.body.immovable = true;
+    egg.body.allowGravity = false;
+  },
+
+  playerEgg : function(){
+    eggsCount += 1;
+    eggsTextValue.text = eggsCount.toString();
+    egg = eggs.getFirstAlive();
+    egg.kill();
   },
 
   addScore : function(){
@@ -157,41 +246,30 @@ var White_World = {
   },
 
   laserRojoHorizontal: function() {
-    var posX = 0;    
-    var posY = Math.floor(player.y / 32);
-
     for(var i = 0; i < nLaserH; i++){
-      var laserRojoH = laserRojoHGroup.getFirstDead(true, posX, posY*32 + i*64);
-
-      laserRojoH.body.immovable = true;
-      laserRojoH.body.allowGravity = false;
-      laserRojoH.fixedToCamera = true;
-      laserRojoH.body.setSize(800,20,0,6);
-      laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
-      laserRojoH.play('laserRojo');
-      sfx_laser.play('laser');
+      game.time.events.add(Phaser.Timer.SECOND * i * intervalosLaser, this.laserPlay, this);
     }
+    laserDelay = timer.seconds + 2*nLaserH;
+  },
 
-    for(var i = 0; i < (nLaserH - 1); i++){
-      var laserRojoH = laserRojoHGroup.getFirstDead(true, posX, posY*32 - (i+1)*64);
+  laserPlay : function(){
+    var posX = 0;
+    var posY = Math.floor(player.y / 32);
+    var laserRojoH = laserRojoHGroup.getFirstDead(true, posX*32, posY*32);
 
-      laserRojoH.body.immovable = true;
-      laserRojoH.body.allowGravity = false;
-      laserRojoH.fixedToCamera = true;
-      laserRojoH.body.setSize(800,20,0,6);
-      laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
-      laserRojoH.play('laserRojo');
-    }
-
-    laserDelay = timer.seconds + 4;
+    laserRojoH.body.immovable = true;
+    laserRojoH.body.allowGravity = false;
+    laserRojoH.fixedToCamera = true;
+    laserRojoH.body.setSize(800,20,0,6);
+    laserRojoH.animations.add('laserRojo', [0,1,2,3,4,5,6,7,8,9,10,11,12,13,14], 8, false);
+    laserRojoH.play('laserRojo');
+    sfx_laser.play('laser');
   },
 
   createFloor : function(){
     floors = game.add.group();
     floors.enableBody = true;
     var floor = floors.create(0, game.world.height - 32, 'floor');
-    //floor.scale.x = game.world.width;
-    //floor.scale.setTo(0.25, 0.25);
     floor.fixedToCamera = true;
     floor.body.immovable = true;
     floor.body.allowGravity = false;
